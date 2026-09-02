@@ -1,0 +1,600 @@
+/*
+ * Pretty Links — Product Displays — frontend stylesheet.
+ *
+ * Visual contract: matches v3 (per-theme layout variations,
+ * absolute-positioned badge tab, rem-based scale, soft white card).
+ * Implementation: modern (CSS custom properties for runtime colors,
+ * single stylesheet, CSS Grid for the group container, system font
+ * stack instead of bundled Inter, class selectors instead of v3's IDs).
+ *
+ * Theme variants — each editor theme has a distinct v3 visual identity
+ * built on the same base card. The variants only adjust direction,
+ * alignment, and which side the badge pins to.
+ *
+ *   prli-basic    — image-left, content-right (default)
+ *   prli-sirius   — image on the RIGHT (row-reverse), badge top-right
+ *   prli-pollux   — buttons stack vertically below content
+ *   prli-vega     — image-RIGHT + buttons in column-reverse
+ *   prli-epsilon  — buttons row wraps full-width below image+content,
+ *                   spaced with `space-between`
+ *   prli-zuben    — buttons row wraps full-width below image+content,
+ *                   right-aligned with a hairline separator above
+ */
+
+:root {
+  --prli-pd-btn-bg: #115e8c;
+  --prli-pd-btn-text: #ffffff;
+  --prli-pd-btn-hover-bg: #6b98bf;
+  --prli-pd-btn-hover-text: #ffffff;
+  --prli-pd-border: #cccccc;
+}
+
+/* -------------------------------------------------------------------------
+ * Card shell — shared by every theme. Top padding is 0 so the absolute-
+ * positioned badge can hang flush from the top edge as a "tab"; main-wrap
+ * carries its own top margin so empty (badge-less) cards still inset.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-product-wrap {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid var(--prli-pd-border, #cccccc);
+  border-radius: 20px;
+  box-shadow: 0 0 23px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+
+.prli-prdt-product-wrap *,
+.prli-prdt-product-wrap *::before,
+.prli-prdt-product-wrap *::after {
+  box-sizing: border-box;
+}
+
+/* Force inherit so the host theme's h2/p font-family doesn't overpower
+ * the system stack we set on the wrapper. */
+.prli-prdt-product-wrap h2,
+.prli-prdt-product-wrap p,
+.prli-prdt-product-wrap a,
+.prli-prdt-product-wrap span,
+.prli-prdt-product-wrap div {
+  font-family: inherit;
+}
+
+/* -------------------------------------------------------------------------
+ * Badge — yellow→orange gradient tab. Absolute-positioned from the top
+ * edge with bottom-only border-radius gives the v3 "attached tab" look.
+ * The wrap reserves padding-top via :has() so the tab doesn't overlap
+ * the image when a badge is present.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-badge-text {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  z-index: 1;
+  display: inline-block;
+  max-width: 150px;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(90deg, #ffab0a 0%, #ff9000 100%);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+  border-radius: 0 0 0.5rem 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------------------------
+ * Main wrap — image column + detail column
+ * ------------------------------------------------------------------------- */
+.prli-prdt-main-wrap {
+  display: flex;
+  column-gap: 1rem;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+/* `flex: 0 1` (shrink-enabled) instead of `flex: 0 0` so the image
+ * + detail columns absorb the column-gap (1rem) by shrinking
+ * proportionally instead of overflowing the card padding by ~16px. */
+.prli-prdt-image-wrap {
+  flex: 0 1 40%;
+  max-width: 40%;
+}
+
+.prli-prdt-image-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+/* Flex column inside the detail wrap so `.prli-prdt-btns` can use
+ * `margin-top: auto` to anchor itself (and the trailing disclosure) to
+ * the bottom of the column. Without this, when the image is taller
+ * than the text content, the buttons sit just below the description
+ * and leave a dead gap to the card bottom edge. */
+.prli-prdt-detail-wrap {
+  flex: 0 1 60%;
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+.prli-prdt-detail-wrap .prli-prdt-btns {
+  margin-top: auto;
+}
+
+/* -------------------------------------------------------------------------
+ * Typography
+ * ------------------------------------------------------------------------- */
+.prli-prdt-title,
+.prli-prdt-price {
+  color: #363636;
+}
+
+.prli-prdt-product-wrap h2.prli-prdt-title {
+  margin: 0 0 0.5rem;
+  padding: 2px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.prli-prdt-product-wrap p.prli-prdt-price {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.prli-prdt-description {
+  margin: 0;
+  padding: 0;
+}
+
+.prli-prdt-description-text {
+  margin: 0 0 1rem;
+  padding: 0;
+  color: #363636;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.prli-prdt-description-text p,
+.prli-prdt-description-text li {
+  margin: 0 0 0.5em;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.prli-prdt-description-text p:last-child {
+  margin-bottom: 0;
+}
+
+.prli-prdt-description-text ul {
+  margin: 0.5rem 0 0.5rem 1rem;
+  padding: 0 0 0 2rem;
+  list-style-type: disc;
+}
+
+.prli-prdt-description-text li {
+  margin: 0 0 0.5rem;
+  display: list-item;
+}
+
+/* -------------------------------------------------------------------------
+ * Buttons — `min-width: 37%` + `flex: 1 1 auto` lets two buttons share
+ * a row at desktop widths but wrap onto two rows in narrow columns.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+}
+
+.prli-prdt-btns .prli-prdt-btn {
+  flex: 1 1 auto;
+  min-width: 37%;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background-color: var(--prli-pd-btn-bg);
+  color: var(--prli-pd-btn-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.prli-prdt-btns .prli-prdt-btn:hover,
+.prli-prdt-btns .prli-prdt-btn:focus {
+  background-color: var(--prli-pd-btn-hover-bg);
+  color: var(--prli-pd-btn-hover-text);
+}
+
+/* -------------------------------------------------------------------------
+ * Disclosure
+ * ------------------------------------------------------------------------- */
+.prli-prdt-disclosure-wrap {
+  margin: 0.2rem 0 0;
+  padding: 0;
+}
+
+.prli-prdt-disclosure {
+  margin: 0;
+  padding: 0;
+  color: #8e8e8e;
+  font-size: 0.6rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+/* -------------------------------------------------------------------------
+ * Theme — Sirius. Image on the right, badge pinned right.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-sirius .prli-prdt-main-wrap {
+  flex-direction: row-reverse;
+}
+
+
+.prli-prdt-theme-prli-sirius .prli-prdt-badge-text {
+  left: auto;
+  right: 1rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Theme — Pollux. Buttons stack vertically and center.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-pollux .prli-prdt-btns {
+  flex-direction: column;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------------------
+ * Theme — Vega. Image right + buttons in column-reverse, badge right.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-vega .prli-prdt-main-wrap {
+  flex-direction: row-reverse;
+}
+
+
+.prli-prdt-theme-prli-vega .prli-prdt-btns {
+  flex-direction: column-reverse;
+  text-align: center;
+}
+
+.prli-prdt-theme-prli-vega .prli-prdt-badge-text {
+  left: auto;
+  right: 1rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Theme — Epsilon. Buttons + disclosure are template-2 siblings of
+ * detail-wrap. With `flex-wrap: wrap` on main-wrap and `width: 100%`
+ * on the buttons row, the buttons break to a new full-width row below
+ * the image+content row, spread with `space-between`.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-epsilon .prli-prdt-main-wrap {
+  flex-wrap: wrap;
+}
+
+/* Image+detail = 95% so they fit on the first row alongside the 1rem
+ * column-gap; the leftover 5% means detail won't overflow & wrap to
+ * its own line. Buttons + disclosure (template-2 children of main-wrap
+ * with `width: 100%`) intentionally wrap to subsequent rows. */
+.prli-prdt-theme-prli-epsilon .prli-prdt-detail-wrap {
+  flex: 0 1 55%;
+  max-width: 55%;
+}
+
+
+.prli-prdt-theme-prli-epsilon .prli-prdt-btns {
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.prli-prdt-theme-prli-epsilon .prli-prdt-btns .prli-prdt-btn {
+  flex: 0 0 auto;
+  min-width: 20%;
+}
+
+.prli-prdt-theme-prli-epsilon .prli-prdt-disclosure-wrap {
+  width: 100%;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Theme — Zuben. Same template-2 structure as Epsilon, but the buttons
+ * row right-aligns with a hairline rule above, and disclosure right-aligns.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-zuben .prli-prdt-main-wrap {
+  flex-wrap: wrap;
+}
+
+.prli-prdt-theme-prli-zuben .prli-prdt-detail-wrap {
+  flex: 0 1 55%;
+  max-width: 55%;
+}
+
+
+.prli-prdt-theme-prli-zuben .prli-prdt-btns {
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(142, 142, 142, 0.55);
+}
+
+.prli-prdt-theme-prli-zuben .prli-prdt-btns .prli-prdt-btn {
+  flex: 0 0 auto;
+  min-width: 20%;
+}
+
+.prli-prdt-theme-prli-zuben .prli-prdt-disclosure-wrap {
+  width: 100%;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  text-align: end;
+}
+
+/* -------------------------------------------------------------------------
+ * Grid item variant — used inside group/grid layouts. Image on top,
+ * content below; columns drop their fixed widths so the card fills its
+ * grid cell.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-grid-item {
+  max-width: 96%;
+}
+
+.prli-prdt-theme-prli-grid-item .prli-prdt-main-wrap {
+  flex-direction: column;
+}
+
+.prli-prdt-theme-prli-grid-item .prli-prdt-image-wrap,
+.prli-prdt-theme-prli-grid-item .prli-prdt-detail-wrap {
+  flex: 0 0 auto;
+  max-width: unset;
+}
+
+/* -------------------------------------------------------------------------
+ * List item variant — used inside group/list layouts. Card chrome is
+ * dropped (no border, shadow, or radius — matches v3's text-style list
+ * rows), badge is hidden (v3's list template never rendered it), and
+ * the layout is a flex row with the image on the RIGHT, content on the
+ * LEFT — same shape as v3's `.prli-pd-list-content { flex-direction: row-reverse }`.
+ * ------------------------------------------------------------------------- */
+.prli-prdt-theme-prli-list-item.prli-prdt-product-wrap {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.prli-prdt-theme-prli-list-item .prli-prdt-badge-text {
+  display: none;
+}
+
+.prli-prdt-theme-prli-list-item .prli-prdt-main-wrap {
+  flex-direction: row-reverse;
+  margin: 0;
+}
+
+.prli-prdt-theme-prli-list-item .prli-prdt-image-wrap {
+  flex: 0 1 40%;
+  max-width: 40%;
+}
+
+.prli-prdt-theme-prli-list-item .prli-prdt-detail-wrap {
+  flex: 0 1 60%;
+  max-width: 60%;
+}
+
+.prli-prdt-theme-prli-list-item .prli-prdt-description-text {
+  min-height: 0;
+}
+
+/* -------------------------------------------------------------------------
+ * Group container — grid layout (modern Grid replaces v3's flex 31% hack)
+ * ------------------------------------------------------------------------- */
+.prli-pd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.prli-pd-group-grid-item {
+  display: flex;
+  min-width: 0;
+}
+
+/* Tighter padding inside grid items — the singles use 1.25rem so
+ * vertical breathing matches the card's wider stance, but in narrower
+ * grid cells that same padding eats too much vertical room. The
+ * :has()-based padding-top reservation is intentionally NOT applied
+ * here: grid cards are short, and letting the badge tab clip the top
+ * of the image a touch reads better than adding another row of empty
+ * space above the picture. */
+.prli-pd-group-grid-item > .prli-prdt-product-wrap,
+.prli-pd-group-grid-item > .prli-prdt-product-wrap:has(> .prli-prdt-badge-text) {
+  flex: 1 1 auto;
+  padding: 1rem 1rem 0.85rem;
+}
+
+.prli-pd-group-grid-item .prli-prdt-main-wrap {
+  flex: 1 1 auto;
+}
+
+/* Grid rows in CSS Grid stretch every cell to the tallest one's height,
+ * so a card with a long description forces its neighbors taller. Make
+ * the detail column a flex column and let the buttons row use
+ * `margin-top: auto` so it anchors to the bottom of the card —
+ * keeps the call-to-action row aligned across cards in the same row. */
+.prli-pd-group-grid-item .prli-prdt-detail-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.prli-pd-group-grid-item .prli-prdt-btns {
+  margin-top: auto;
+}
+
+/* Image inside grid items — cap height so tall images don't dominate
+ * the card; let the card's vertical breathing room come from padding. */
+.prli-pd-group-grid-item .prli-prdt-image-img {
+  max-height: 220px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Group container — list layout
+ * ------------------------------------------------------------------------- */
+/* Semantic <ol> for ordering, but markers stay hidden — v3's list
+ * template never showed numbers, and the per-item product card already
+ * carries enough visual hierarchy without "1., 2., 3." in the gutter. */
+.prli-pd-list {
+  margin: 30px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prli-pd-list-item {
+  margin: 0 0 45px;
+  padding: 0;
+  list-style: none;
+}
+
+.prli-pd-list-item:last-child {
+  margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------------------
+ * Responsive — match v3's 720px / 420px breakpoints
+ * ------------------------------------------------------------------------- */
+@media screen and (max-width: 720px) {
+  .prli-prdt-badge-text {
+    padding: 0.5rem 1rem;
+  }
+
+  .prli-prdt-theme-prli-basic .prli-prdt-image-wrap,
+  .prli-prdt-theme-prli-pollux .prli-prdt-image-wrap,
+  .prli-prdt-theme-prli-vega .prli-prdt-image-wrap {
+    flex: 0 1 45%;
+    max-width: 45%;
+  }
+
+  .prli-prdt-theme-prli-basic .prli-prdt-detail-wrap,
+  .prli-prdt-theme-prli-pollux .prli-prdt-detail-wrap,
+  .prli-prdt-theme-prli-vega .prli-prdt-detail-wrap {
+    flex: 0 1 55%;
+    max-width: 55%;
+  }
+
+  .prli-prdt-theme-prli-sirius .prli-prdt-main-wrap,
+  .prli-prdt-theme-prli-pollux .prli-prdt-main-wrap,
+  .prli-prdt-theme-prli-vega .prli-prdt-main-wrap,
+  .prli-prdt-theme-prli-epsilon .prli-prdt-main-wrap,
+  .prli-prdt-theme-prli-zuben .prli-prdt-main-wrap {
+    margin-right: 0;
+    margin-top: 5%;
+  }
+
+  .prli-prdt-product-wrap h2.prli-prdt-title {
+    font-size: 1.2rem;
+  }
+
+  .prli-prdt-btns .prli-prdt-btn {
+    font-size: 0.7rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .prli-prdt-product-wrap {
+    padding-bottom: 0.5rem;
+  }
+
+  .prli-prdt-product-wrap p.prli-prdt-price {
+    margin-bottom: 0.3rem;
+  }
+
+  .prli-prdt-theme-prli-pollux .prli-prdt-description-text,
+  .prli-prdt-theme-prli-vega .prli-prdt-description-text {
+    min-height: 0;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .prli-prdt-theme-prli-sirius .prli-prdt-main-wrap,
+  .prli-prdt-theme-prli-pollux .prli-prdt-main-wrap {
+    margin-top: 7%;
+  }
+
+  .prli-prdt-detail-wrap {
+    margin-top: 2px;
+  }
+
+  .prli-prdt-description-text {
+    min-height: 0;
+    font-size: 0.7rem;
+  }
+
+  .prli-prdt-product-wrap h2.prli-prdt-title {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .prli-prdt-product-wrap p.prli-prdt-price {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .prli-prdt-btns {
+    gap: 0.3rem;
+  }
+
+  .prli-prdt-btns .prli-prdt-btn {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.4rem;
+  }
+
+  .prli-prdt-disclosure {
+    margin: 0;
+  }
+
+  .prli-prdt-badge-text {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+    border-radius: 0 0 0.4rem 0.4rem;
+  }
+
+  .prli-prdt-product-wrap {
+    padding: 0 0.75rem 0.5rem;
+    border-radius: 12px;
+  }
+}

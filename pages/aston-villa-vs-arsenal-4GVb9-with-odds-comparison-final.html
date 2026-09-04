@@ -498,7 +498,12 @@ img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 15
    match the row's edge (icon before the number leaves THAT edge
    undisturbed instead). Order values, not DOM order, control this so the
    markup itself doesn't need two variants. */
-.tpp-bookie-row__best-icon{ width:18px; height:18px; flex:none; color:#0c7979; align-self:center; order:2;}
+/* Measures as centred (sub-1px delta against the number's own bounding
+   box) but still read as low in review — trusting that over the geometry:
+   an up-arrow's ink is asymmetric (wide chevron up top, a thin stem below
+   it), so a geometrically-centred box doesn't necessarily look centred.
+   Nudged up from true centre to compensate. */
+.tpp-bookie-row__best-icon{ width:18px; height:18px; flex:none; color:#0c7979; align-self:center; order:2; margin-top:-3px;}
 .tpp-bookie-row__odd-value{ order:1;}
 /* Handoff spec: offer text is capped at 2 lines, full stop — anything past
    that is clipped, not just wrapped further. Applies in both the single-row

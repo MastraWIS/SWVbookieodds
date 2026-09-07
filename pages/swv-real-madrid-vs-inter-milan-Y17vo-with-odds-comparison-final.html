@@ -1,0 +1,1255 @@
+<!--
+  WIS PROTOTYPE — sportwettenvergleich.net (SWV), ARCHIVE mode
+  Source  : https://www.sportwettenvergleich.net/kickform/champions-league/real-madrid-vs-inter-milan/Y17vo/
+  Captured: 2026-09-07 — bookmaker odds comparison added on top: 2026-09-07
+  Live CSS fingerprint at capture time: app.e80733.css (theme), plus
+  wis-stats-integration-wp build/shared/index.css and stats-front/dist/de_DE/
+  assets/index.css (both unversioned/unhashed on the live site). The hash
+  rotates on redeploy — re-check the live <head> before reusing this capture.
+
+  Ports the SAME "Compare Odds" bookmaker-row component built for TPP
+  (match-odds-comparison-final.html in this project, thepunterspage.com) onto
+  SWV's own real KickForm page, restyled with SWV's own tokens (swv/tokens.css)
+  and the live --stats-* CSS custom properties already on this page
+  (--stats-global-primary #0f1d3e, --stats-table-row-highlighted-color
+  #fdebd8, --stats-hyperlink #fd823d) rather than TPP's colours. New CSS/JS is
+  scoped under #swv-odds-comparison-* / .swv-* ids so it never collides with
+  TPP's .tpp-* rules. Structure/behaviour (toggle + reveal panel per card,
+  bookie rows with logo/odd/offer/CTA, best-odds up-arrow indicator computed
+  not hand-picked, row order shuffled once on load) is unchanged from the TPP
+  version — only colours, copy, and the bookmaker set are SWV's own.
+
+  STRUCTURAL DIFFERENCE FROM THE TPP BUILD (confirmed on the live page before
+  building, not assumed): SWV's KickForm widget wraps everything in its own
+  native Prognosen/Quoten/Ergebnisse/Wettboni tab switcher that TPP's page
+  does not have, and this fixture's Prognosen tab renders only 4 native
+  prediction cards (Match Outcome/1X2, Correct Score, BTTS, Goals Over/Under)
+  — this specific fixture has no native Value Tip card, unlike TPP's 5 (and
+  unlike some other live SWV matches, which do get one — Kickform's model
+  only surfaces a Value Tip when it finds sufficient value). The page is
+  frozen on its default Prognosen tab state; the other 3 tabs remain in the
+  DOM but are inert (no JS ports their own switching).
+
+  VALUE TIP CARD: this is the REAL native SWV "Kickform Value Tip" component
+  (data-testid="valuetip-widget", .value-tip/.value-tip__header/.value-tip-cta
+  family), not a fabrication — its exact markup was copied verbatim from a
+  live SWV match that does render one (sportwettenvergleich.net/kickform/
+  daenische-superliga/midtjylland-vs-nordsjaelland/P4VyE/), then the content
+  swapped for this match (Beide Teams treffen: Ja, 1.63 @ 20bet, matching the
+  real BTTS Ja probability of 60% shown lower on the page). Its CSS was
+  already present verbatim in this page's own downloaded stats-index.css (21
+  rules, all token-driven) — zero new CSS needed. Positioned as the FIRST
+  card in the outcomes grid, matching where Value Tip sits on both the TPP
+  build and the live SWV reference page (before Match Outcome).
+
+  RATIONALE COPY: each of the 4 real prediction cards (Match Outcome, Correct
+  Score, BTTS, Goals) now carries a German rationale write-up in the same
+  slot TPP's did, using the exact same real component
+  (._read-more-content_13lqy_1/._clamped_13lqy_12/._fade-overlay_13lqy_19/
+  ._read-more-link_13lqy_34) — confirmed present under the identical
+  CSS-module hash in SWV's own stats-index.css, so it is a genuine shared
+  cross-brand component, not a TPP-only class reused out of context. Copy is
+  newly written for this fixture (not translated from TPP's Aston Villa/
+  Arsenal text, which named the wrong teams) but follows the same format:
+  a bold headline + 3-4 sentence analysis tied to this page's own displayed
+  probabilities. "Mehr lesen"/"Weniger anzeigen" reuses the coupled toggle
+  behaviour from the TPP build verbatim (swvToggleReadMore mirrors
+  tppToggleReadMore exactly): expanding the rationale also opens the odds
+  panel beneath it, and collapsing it closes both; Compare Odds on its own
+  still only ever affects the odds panel.
+
+  Bookmakers (22bet, 20bet, Rollino) and their brand chip colours are the
+  real ones this fixture's bookiesData/goto links use, read directly off the
+  live page's own "Quoten" tab and odd-bookie rows. Per-market odds mix real
+  values from that tab (e.g. 1X2, BTTS, O/U 2.5) with realistic invented
+  variants for the other two bookmakers, since the live "Quoten" tab only
+  ever shows one bookmaker's price per market, not a 3-way comparison —
+  bonus/offer copy is realistic German, matching this page's own real
+  "Sportwetten Bonus" card copy where available (20bet's exact live offer
+  text is reused verbatim).
+
+  All CSS, fonts, and images are DOWNLOADED and rewritten to relative local
+  paths under assets/real-madrid-vs-inter-milan-Y17vo/ — this page is
+  self-contained and renders with no network access. Match odds, predictions,
+  and any live widget data will go stale, and it will NOT track future
+  redeploys of the live site. Cloudflare's bot-verification script and the
+  theme's own JS bundles (mega-menu/carousel/vote-slider/tab-switcher
+  interactivity, VWO A/B-test snippets) were all removed — this is a static,
+  non-interactive visual archive, not a functional mirror. No GTM/analytics
+  container was present in the seeded SWV shell template to begin with.
+
+  Not yet registered in WIStorybook or written back to the skill's
+  changelog — pending review, same as the TPP version this was ported from.
+-->
+<!DOCTYPE html>
+<html lang="de-DE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Vorhersage, Statistiken, Quoten und Wett Tipps für das Spiel Real Madrid gegen Inter Milan am 8. September 2026. Inklusive Quotenvergleich der Top-Wettanbieter je Markt.">
+<title>Real Madrid vs. Inter Milan – Tipp, Statistiken, Prognosen &amp; Quoten 8. September 2026</title>
+<link rel="preload" href="assets/real-madrid-vs-inter-milan-Y17vo/fonts/montserrat-v26-latin_latin-ext-regular.429768.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/real-madrid-vs-inter-milan-Y17vo/fonts/montserrat-v26-latin_latin-ext-700.509dea.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/real-madrid-vs-inter-milan-Y17vo/css/app.e80733.css" media="all">
+<link rel="stylesheet" href="assets/real-madrid-vs-inter-milan-Y17vo/css/product-displays.css" media="all">
+<link rel="stylesheet" href="assets/real-madrid-vs-inter-milan-Y17vo/css/shared-index.css" media="all">
+<link rel="stylesheet" href="assets/real-madrid-vs-inter-milan-Y17vo/css/stats-index.css" media="all">
+<link rel="icon" href="assets/real-madrid-vs-inter-milan-Y17vo/img/cropped-favicon-32x32.png" sizes="32x32">
+<link rel="icon" href="assets/real-madrid-vs-inter-milan-Y17vo/img/cropped-favicon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="assets/real-madrid-vs-inter-milan-Y17vo/img/cropped-favicon-180x180.png">
+<style>img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 1500px }</style>
+<style>.wp-block-wis-who-will-win.is-initializing{opacity:0}.wp-block-wis-who-will-win{transition:opacity .2s ease}</style>
+<style id="wis-blocks-paragraph-style-inline-css">
+.entry-content p.intro,.entry-content>p{margin-bottom:20px!important}
+
+</style>
+<style id="wis-blocks-desktop-mobile-media-block-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-heading-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-table-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-styled-list-block-item-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-styled-list-block-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-infobox-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-list-block-item-style-inline-css">
+
+
+</style>
+<style id="wis-blocks-list-block-style-inline-css">
+
+
+</style>
+<style id="wis-news-module-style-inline-css">
+.wp-block-wis-news-module{--stats-card-border-radius:20px;--stats-card-border:1px solid #d6d9df;--wis-card-list-item-padding:8px 10px;--wis-card-list-item-border-bottom:1px solid #cfd4de;--wis-card-list-item-gap:10px;display:block;min-width:260px;width:100%}.wp-block-wis-news-module .news-module__inner{background:#fff}.wp-block-wis-news-module .news-module__list{display:block;margin:0;padding:0}.wp-block-wis-news-module .news-module__card{align-items:stretch;background:transparent;border-bottom:var(--wis-card-list-item-border-bottom);box-sizing:border-box;color:var(--stats-global-primary);display:grid;gap:var(--wis-card-list-item-gap);grid-template-columns:70px minmax(0,1fr);min-height:86px;padding:var(--wis-card-list-item-padding);text-decoration:none}.wp-block-wis-news-module .news-module__card:focus-visible{outline:2px solid var(--stats-global-primary);outline-offset:-2px}.wp-block-wis-news-module .news-module__card:hover{background-color:transparent}.wp-block-wis-news-module .news-module__card-title:hover{color:var(--stats-hyperlink);text-decoration:underline;text-underline-offset:2px}.wp-block-wis-news-module .news-module__thumb{align-self:center;background:#ccd3df;border-radius:10px;height:70px;overflow:hidden;width:70px}.wp-block-wis-news-module .news-module__thumb img{display:block;height:100%;-o-object-fit:cover;object-fit:cover;width:100%}.wp-block-wis-news-module .news-module__thumb-placeholder{background:#c5cdd9;display:block;height:100%;width:100%}.wp-block-wis-news-module .news-module__content{align-self:stretch;display:flex;flex-direction:column;gap:4px;justify-content:space-between;min-width:0;overflow:hidden}.wp-block-wis-news-module .news-module__card-title{color:var(--stats-global-primary);font-size:14px;font-weight:700;line-height:1.15;text-decoration:none;transition:color .2s ease,text-decoration-color .2s ease}.wp-block-wis-news-module .news-module__date{color:#6b7280;font-size:10px;font-weight:400;line-height:1.2;margin-top:2px;text-align:left}
+
+</style>
+<style id="wis-bet-of-the-day-style-inline-css">
+.wp-block-wis-bet-of-the-day{--wis-card-content-gap:.75rem;--wis-card-content-align-items:center;overflow:visible!important}.wp-block-wis-bet-of-the-day__match-link{color:var(--stats-global-primary);display:flex;flex-direction:column;gap:.25rem;text-decoration:none}.wp-block-wis-bet-of-the-day__match{align-items:center;display:grid;gap:.25rem;grid-template-columns:1fr 80px 1fr}.wp-block-wis-bet-of-the-day__match-home-team{text-align:right}.wp-block-wis-bet-of-the-day__match img{height:36px;-o-object-fit:contain;object-fit:contain;width:36px}.wp-block-wis-bet-of-the-day__match-start{color:var(--stats-global-primary);font-size:12px;font-weight:400;text-align:center}.wp-block-wis-bet-of-the-day__match-start-time{font-size:16px;font-weight:700}.wp-block-wis-bet-of-the-day__match-teams{color:#6b7280;font-size:10px;font-weight:700;text-align:center}.wp-block-wis-bet-of-the-day__bet-title{color:var(--stats-global-primary);font-size:16px;font-weight:var(--wis-bet-of-the-day-bet-title-font-weight);text-align:center}.wp-block-wis-bet-of-the-day__bet{display:flex;flex-direction:column;gap:.75rem;width:100%}.wp-block-wis-bet-of-the-day__bet-card{align-items:stretch;background-color:#fff;border:1px solid #d1d5db;border-radius:.5rem;color:var(--stats-global-primary);display:grid;font-size:14px;font-weight:var(--wis-bet-of-the-day-bet-card-font-weight);grid-template-columns:1fr 1fr;overflow:hidden;text-align:center;text-decoration:none;transition:background-color .15s ease-in-out,border-color .15s ease-in-out}.wp-block-wis-bet-of-the-day__bet-card:hover{background-color:var(--stats-table-row-highlighted-color);border-color:var(--stats-value-tip-cta-border-color-hover)}.wp-block-wis-bet-of-the-day__bet-bookmaker,.wp-block-wis-bet-of-the-day__bet-odds{align-items:center;display:flex;height:30px;justify-content:center}.wp-block-wis-bet-of-the-day__bet-bookmaker{padding-inline-end:32px;position:relative}.wp-block-wis-bet-of-the-day__bet-bookmaker:after{background-color:hsla(0,0%,9%,.2);background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2717%27 height=%2717%27 fill=%27none%27%3E%3Cpath fill=%27%23fff%27 d=%27m7.086 1.088.826-.826a.89.89 0 0 1 1.261 0l7.231 7.228c.35.35.35.915 0 1.26l-7.23 7.232a.89.89 0 0 1-1.262 0l-.826-.826a.894.894 0 0 1 .015-1.276l4.483-4.27H.893A.89.89 0 0 1 0 8.717v-1.19a.89.89 0 0 1 .893-.893h10.69l-4.482-4.27a.887.887 0 0 1-.015-1.276%27/%3E%3C/svg%3E");background-position:50%;background-repeat:no-repeat;background-size:14px;border-left:1px solid hsla(0,0%,100%,.2);bottom:0;content:"";position:absolute;right:0;top:0;width:32px}.wp-block-wis-bet-of-the-day__bet-confidence{display:flex;gap:.5rem;justify-content:space-between}.wp-block-wis-bet-of-the-day__bet-confidence-value{align-items:center;color:var(--stats-global-primary);display:flex;font-size:10px;font-weight:700;gap:.5rem;text-transform:uppercase}.wp-block-wis-bet-of-the-day__tooltip{align-items:center;display:flex;position:relative}.wp-block-wis-bet-of-the-day__tooltip svg{flex-shrink:0;height:12px;width:12px}.wp-block-wis-bet-of-the-day__tooltip svg:hover{cursor:pointer}.wp-block-wis-bet-of-the-day__tooltip-content{background-color:#f3f4f6;border-radius:.5rem;box-shadow:0 4px 7px 0 rgba(0,0,0,.25),0 2px 4px 0 rgba(0,0,0,.06),0 0 1px 0 rgba(0,0,0,.12);color:#6b7280;font-size:12px;left:50%;line-height:1.8;max-width:300px;opacity:0;padding:.75rem 1rem;position:absolute;top:calc(100% + 20px);transform:translateX(-50%);transition:opacity .2s ease,visibility .2s ease;visibility:hidden;width:-moz-max-content;width:max-content;z-index:100}.wp-block-wis-bet-of-the-day__tooltip-content:before{bottom:100%;content:"";height:20px;left:0;position:absolute;right:0}.wp-block-wis-bet-of-the-day__tooltip-content:after{border-bottom:12px solid #f3f4f6;border-left:12px solid transparent;border-right:12px solid transparent;border-top:0;bottom:100%;content:"";filter:drop-shadow(0 -3px 2px rgba(0,0,0,.05));left:50%;position:absolute;transform:translateX(-50%)}.wp-block-wis-bet-of-the-day__tooltip:hover .wp-block-wis-bet-of-the-day__tooltip-content{opacity:1;visibility:visible}.wis-sidebar-right-col .wp-block-wis-bet-of-the-day__tooltip-content{left:auto;right:-1.5rem;transform:none}.wis-sidebar-right-col .wp-block-wis-bet-of-the-day__tooltip-content:before{left:0;right:0}.wis-sidebar-right-col .wp-block-wis-bet-of-the-day__tooltip-content:after{left:auto;right:1.125rem;transform:none}
+
+</style>
+<style id="wis-blocks-image-style-inline-css">
+.wp-block-wis-blocks-image{align-items:center;display:flex;flex-direction:column}.wp-block-wis-blocks-image img{height:auto;max-width:100%}.wp-block-wis-blocks-image figcaption{margin-bottom:1em;margin-top:.5em}.wp-block-wis-blocks-image .is-style-rounded img,.wp-block-wis-blocks-image.is-style-rounded img{border-radius:9999px}.wp-block-wis-blocks-image figure{margin:0}
+
+</style>
+<style id="wis-who-will-win-style-inline-css">
+.wp-block-wis-who-will-win{position:relative}.wp-block-wis-who-will-win__carousel{display:flex;flex-direction:column;gap:.75rem;padding:.75rem}.wp-block-wis-who-will-win__slides-outer{overflow:hidden}.wp-block-wis-who-will-win__slides-track{display:flex;transition:transform .3s ease}.wp-block-wis-who-will-win__slide{display:flex;flex:0 0 100%;flex-direction:column;gap:.5rem;min-width:0;width:100%}.wp-block-wis-who-will-win__match-link{color:var(--stats-global-primary);display:block;text-decoration:none}.wp-block-wis-who-will-win__match-link:hover{opacity:.85}.wp-block-wis-who-will-win__match-header{color:var(--stats-global-secondary);display:flex;flex-wrap:wrap;font-size:10px;gap:.125rem .375rem}.wp-block-wis-who-will-win__countdown{min-width:60px}.wp-block-wis-who-will-win__live-badge{align-items:center;color:#dc3545;display:inline-flex;font-size:10px;font-weight:900;gap:.25rem;text-transform:uppercase}.wp-block-wis-who-will-win__live-badge:before{animation:blink 1.5s ease-in-out infinite;background:#dc3545;border-radius:4px;content:"";display:inline-block;height:4px;width:4px}@keyframes blink{0%,to{opacity:1}50%{opacity:0}}.wp-block-wis-who-will-win__match-teams{color:var(--stats-global-primary);font-size:14px}.wp-block-wis-who-will-win__vs{color:#9ca3af;font-size:13px;font-weight:700;text-align:center}.wp-block-wis-who-will-win__nav[hidden]{display:none}.wp-block-wis-who-will-win__cast-vote-label{color:var(--stats-global-secondary);font-size:12px;font-weight:700;margin:0 0 .5rem}.wp-block-wis-who-will-win__vote-buttons{display:grid;gap:.375rem;grid-template-columns:1fr 1fr 1fr}.wp-block-wis-who-will-win__vote-btn{align-items:center;background-color:#fff;border:1px solid #d1d5db;border-radius:.5rem;color:var(--stats-global-primary);cursor:pointer;display:flex;flex-direction:column;font-size:12px;font-weight:700;gap:.25rem;justify-content:center;min-height:56px;padding:.625rem .25rem;text-align:center;transition:border-color .15s,background-color .15s}.wp-block-wis-who-will-win__vote-btn img{height:32px;-o-object-fit:contain;object-fit:contain;width:32px}.wp-block-wis-who-will-win__vote-btn-name{font-size:11px;font-weight:700;word-break:break-word}.wp-block-wis-who-will-win__vote-btn:hover:not(:disabled){background-color:var(--stats-table-row-highlighted-color)}.wp-block-wis-who-will-win__vote-btn:disabled{cursor:default}.wp-block-wis-who-will-win__post-vote[hidden]{display:none}.wp-block-wis-who-will-win__thank-you{background-color:#16a34a;border-radius:.5rem;color:#fff;font-size:13px;font-weight:700;margin-bottom:.5rem;padding:.5rem .75rem;text-align:center}.wp-block-wis-who-will-win__your-vote-label{color:var(--stats-global-primary);font-size:12px;font-weight:400;margin:0 0 .5rem}.wp-block-wis-who-will-win__results{display:flex;flex-direction:column;gap:.125rem}.wp-block-wis-who-will-win__result-row{align-items:center;display:grid;gap:.5rem;grid-template-columns:16px 1fr auto}.wp-block-wis-who-will-win__result-row img{flex-shrink:0;height:16px;-o-object-fit:contain;object-fit:contain;width:16px}.wp-block-wis-who-will-win__result-label{color:var(--stats-global-secondary);font-size:11px;font-weight:700;text-align:center}.wp-block-wis-who-will-win__result-pct{color:var(--stats-global-secondary);font-size:11px;font-weight:700;min-width:30px;text-align:right}.wp-block-wis-who-will-win__result-row.is-chosen .wp-block-wis-who-will-win__result-pct{color:var(--stats-global-primary)}.wp-block-wis-who-will-win__result-bar-outer{background-color:#e5e7eb;border-radius:4px;height:8px;overflow:hidden}.wp-block-wis-who-will-win__result-bar-fill{background-color:var(--stats-background-primary);border-radius:4px;height:100%;transition:width .4s ease;width:var(--pct,0)}@keyframes pulse{0%,to{opacity:1}50%{opacity:.4}}.wp-block-wis-who-will-win__post-vote.is-block-loading .wp-block-wis-who-will-win__result-bar-outer,.wp-block-wis-who-will-win__post-vote.is-block-loading .wp-block-wis-who-will-win__result-pct{animation:pulse 1.2s ease-in-out infinite}.wp-block-wis-who-will-win__totals[hidden]{display:none}.wp-block-wis-who-will-win__totals{color:#1cb564;font-size:11px;font-weight:400}.wp-block-wis-who-will-win__totals-count{font-weight:700}.wp-block-wis-who-will-win__nav{align-items:center;display:flex;gap:.5rem;justify-content:space-between}.wp-block-wis-who-will-win__nav-btn{align-items:center;background-color:#fff;border:1px solid #e5e7eb;border-radius:.5rem;cursor:pointer;display:flex;flex-shrink:0;height:32px;justify-content:center;transition:background-color .15s;width:32px}.wp-block-wis-who-will-win__nav-btn:hover:not(:disabled){background-color:var(--stats-table-row-highlighted-color)}.wp-block-wis-who-will-win__nav-btn:disabled{cursor:default;opacity:.35}.wp-block-wis-who-will-win__dots{align-items:center;display:flex;gap:1.25rem}.wp-block-wis-who-will-win__dot{background-color:var(--stats-background-secondary,#e5e7eb);border-radius:50%;cursor:pointer;display:block;height:9px;transition:background-color .15s,transform .15s;width:9px}.wp-block-wis-who-will-win__dot.is-active{background-color:var(--stats-disabled)}.wp-block-wis-who-will-win__usability{align-items:stretch;background-color:var(--stats-table-row-highlighted-color);border-bottom:1px solid #e5e7eb;display:grid;gap:1rem;grid-template-columns:1fr 1fr;inset-inline:0;padding:.625rem;position:absolute;top:51px;z-index:10}.wp-block-wis-who-will-win__usability[hidden]{display:none}.wp-block-wis-who-will-win__usability.is-thank-you{background-color:#1cb564;display:flex;justify-content:center;min-height:68px}.wp-block-wis-who-will-win__usability-text{color:var(--stats-global-primary);font-size:12px;font-weight:600}.is-thank-you .wp-block-wis-who-will-win__usability-text{align-items:center;color:#fff;display:flex;gap:.375rem;grid-column:span 2;text-align:center}.wp-block-wis-who-will-win__usability-actions{display:grid;gap:.25rem;grid-template-columns:1fr 1fr}.wp-block-wis-who-will-win__usability-btn{background-color:#fff;border:1px solid var(--stats-background-secondary);border-radius:.5rem;color:var(--stats-global-secondary);cursor:pointer;font-size:12px;font-weight:700;padding:.5rem;text-transform:uppercase;transition:background-color .15s,color .15s}.wp-block-wis-who-will-win__usability-btn:hover{background-color:var(--stats-global-primary);border-color:var(--stats-global-primary);color:#fff}
+
+</style>
+<style id="wis-top-bookies-style-inline-css">
+.wp-block-wis-top-bookies{--wis-card-list-item-align-items:stretch;--wis-card-list-item-gap:.625rem;--wis-card-list-item-padding:.5rem .75rem 1rem}.wp-block-wis-top-bookies__col-1,.wp-block-wis-top-bookies__col-2{display:flex;flex-direction:column}.wp-block-wis-top-bookies__col-1{align-items:center;flex:0 1 54px;gap:.25rem}.wp-block-wis-top-bookies__col-2{flex:1;gap:.5rem}.wp-block-wis-top-bookies__logo{align-items:center;border-radius:.5rem;display:flex;height:3.375rem;justify-content:center;width:5rem}.wp-block-wis-top-bookies__logo img{height:2.25rem;-o-object-fit:contain;object-fit:contain;transition:transform .4s ease-in-out;width:4.5rem}.wp-block-wis-top-bookies__logo:hover img{transform:scale(1.2)}.wp-block-wis-top-bookies__see-review{align-items:center;color:var(--wis-top-bookies-see-review-color,var(--stats-global-primary));display:flex;font-size:12px;font-weight:700;justify-content:center;line-height:1;margin-top:auto;min-height:2rem;text-align:center;text-decoration:none}.wp-block-wis-top-bookies__see-review:hover{color:var(--stats-hyperlink)}.wp-block-wis-top-bookies__bonus-text{align-items:center;color:var(--stats-global-primary);display:flex;font-size:16px;font-style:normal;font-weight:700;height:3.375rem;min-height:3.375rem;overflow:hidden}.wp-block-wis-top-bookies__terms{color:#6b7280;font-size:11px;height:28px;overflow-y:scroll}
+
+</style>
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(body) { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){margin-left: auto !important;margin-right: auto !important;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}a:where(:not(.wp-element-button)){text-decoration: underline;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;line-height: inherit;padding: calc(0.667em + 2px) calc(1.333em + 2px);text-decoration: none;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+</style>
+<style id="swv-odds-comparison-styles">
+/* Kickform Odds Comparison — ported from the thepunterspage.com (TPP) build of this
+   same feature (match-odds-comparison-final.html) and restyled with SWV's own real
+   tokens/colours per swv/tokens.css and the live --stats-* CSS custom properties
+   already present on sportwettenvergleich.net (verified via computed styles on the
+   live Real Madrid vs Inter Milan Kickform page: --stats-global-primary #0f1d3e,
+   --stats-table-row-highlighted-color #fdebd8, --stats-hyperlink #fd823d,
+   --stats-card-border 1px solid #d1d5db). Structure/behaviour (toggle + reveal,
+   bookie rows, best-odds indicator, shuffle-on-load) is unchanged from TPP; only
+   colours/CTA/copy are SWV's own. Scoped under #swv-odds-comparison-* / .swv-* so it
+   never collides with TPP's .tpp-* rules if both files are ever open at once. */
+.swv-compare-btn{ display:inline-flex; align-items:center; gap:6px; margin-top:8px; background:var(--bg-surface,#f9fafb); border:1px solid var(--border-subtle,#e5e7eb); border-radius:8px; padding:6px 14px; font-family:inherit; font-weight:700; font-size:14px; color:var(--icon-secondary,#6b7280); cursor:pointer; transition:color .15s ease;}
+.swv-compare-btn:hover{ color:var(--interactive-primary,#fd823d);}
+.swv-compare-btn:focus-visible{ outline:2px solid var(--icon-secondary,#6b7280); outline-offset:2px;}
+.swv-compare-btn svg{ width:12px; height:12px; display:block; transition:transform .2s ease-in-out;}
+.swv-compare-btn[aria-expanded="true"] svg{ transform:rotate(180deg);}
+.swv-odds-reveal{ margin-top:14px;}
+.swv-odds-reveal[hidden]{ display:none;}
+.swv-odds-block{ margin-top:12px; min-width:0; max-width:100%;}
+.swv-odds-market-title{ font-size:.6875rem; font-weight:700; text-transform:uppercase; letter-spacing:.02em; color:var(--text-secondary,#686f7d); margin-bottom:8px;}
+.swv-odds-market-title b{ color:var(--text-primary,#0f1d3e); text-transform:none; letter-spacing:normal;}
+
+/* Row sizing/spacing kept from TPP's DES-1334 Figma spec (logo 72x36, fixed 144x32
+   CTA, 560px container breakpoint) — that layout math is brand-agnostic; only the
+   colours below are SWV's. */
+.swv-bookie-rows{ display:flex; flex-direction:column; gap:8px; min-width:0; max-width:100%; container-type:inline-size;}
+.swv-bookie-row{ display:flex; align-items:center; background:var(--bg-surface-alt,#f3f4f6); border-radius:10px; padding:12px; text-decoration:none; color:inherit; min-width:0;}
+.swv-bookie-row.is-best{ background:var(--kickform-table-highlight,#fdebd8);}
+.swv-bookie-row__logo{ flex:none; width:72px; height:36px; border-radius:4px; margin-right:16px; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.swv-bookie-row__logo img{ width:100%; height:100%; object-fit:contain; display:block;}
+.swv-bookie-row__odd{ flex:none; display:inline-flex; align-items:center; gap:4px; font-weight:800; font-size:1rem; line-height:17.6px; color:var(--text-primary,#0f1d3e); font-variant-numeric:tabular-nums; white-space:nowrap;}
+.swv-bookie-row.is-best .swv-bookie-row__odd{ color:var(--interactive-primary,#fd823d);}
+/* Up-arrow, not a badge/checkmark — same reasoning as the TPP version: a checkmark
+   reads as "verified/endorsed"; the row order below is also shuffled on load so the
+   highlighted price isn't always in the same visual slot. */
+.swv-bookie-row__best-icon{ width:18px; height:18px; flex:none; color:var(--interactive-primary,#fd823d); align-self:center; order:2; margin-top:-3px;}
+.swv-bookie-row__odd-value{ order:1;}
+.swv-bookie-row__offer{ flex:1 1 0%; min-width:0; font-size:.875rem; line-height:17.5px; font-weight:700; text-align:center; color:var(--text-primary,#0f1d3e); display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;}
+/* SWV's real CTA look (tokens.css --cta-*): orange fill, extra-bold italic uppercase,
+   flat 2px/4px drop shadow, hover lightens to the pale orange tint with dark-orange
+   text — NOT TPP's gold btn-cta. */
+.swv-bookie-row__cta{ flex:none; width:144px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--cta-radius,8px); background:var(--cta-fill,#fd823d); border:1px solid var(--cta-stroke,#fd823d); box-shadow:var(--cta-shadow,2px 4px 0 0 #9a3201); color:var(--cta-text,#fff); font-size:.875rem; font-weight:var(--font-weight-cta,800); font-style:italic; line-height:16px; text-transform:uppercase; text-align:center; transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;}
+.swv-bookie-row__cta:hover{ background:var(--cta-hover-fill,#fdebd8); color:var(--cta-hover-text,#7e3a14); border-color:var(--cta-hover-stroke,#7e3a14); box-shadow:none;}
+.swv-bookie-row:focus-visible .swv-bookie-row__cta,
+.swv-bookie-row__cta:focus-visible{ outline:2px solid var(--text-primary,#0f1d3e); outline-offset:2px;}
+@container (max-width:560px){
+  .swv-bookie-row{ display:grid; grid-template-columns:auto 1fr; grid-template-areas:"logo odd" "offer cta"; column-gap:16px; row-gap:10px;}
+  .swv-bookie-row__logo{ grid-area:logo; margin-right:0;}
+  .swv-bookie-row__odd{ grid-area:odd; justify-self:end; text-align:right;}
+  .swv-bookie-row__best-icon{ order:0;}
+  .swv-bookie-row__offer{ grid-area:offer; text-align:left; align-self:center;}
+  .swv-bookie-row__cta{ grid-area:cta; justify-self:end;}
+}
+.swv-odds-compare__footer{ font-size:.6875rem; color:var(--text-disabled,#8d97ae); text-align:center; padding-top:8px; line-height:1.5;}
+
+/* Per-card rationale write-up (Match Outcome / Correct Score / BTTS / Goals) uses
+   the real ._read-more-content_13lqy_1 / ._clamped_13lqy_12 / ._fade-overlay_13lqy_19
+   / ._read-more-link_13lqy_34 component — confirmed present verbatim, same CSS-module
+   hash, in this page's own downloaded stats-index.css (a shared cross-brand
+   component, not a TPP-only class), fully token-driven off --stats-global-secondary/
+   --stats-global-primary/--stats-card-background/--stats-hyperlink. No new CSS
+   needed here; only the German copy is new.
+
+   The Value Tip card sits as its own full-width block immediately before the
+   outcomes grid (matching its TPP position — a sibling ahead of the 2-col
+   grid, not a cell inside it, so it isn't halved to one column's width) and
+   is the real native SWV "Kickform Value Tip" component (.value-tip /
+   .value-tip__header / .value-tip-cta etc.) — same source: verbatim from a
+   live SWV match that renders one, its CSS already shipping in
+   stats-index.css. No new CSS for it either. */
+
+/* Correct Score Probability and Both Teams to Score sit side by side on desktop.
+   Their real titles wrap to 1 or 2 lines depending on length ("Beide Teams
+   treffen" fits one line, "Wahrscheinlichkeit des exakten Ergebnisses" doesn't),
+   which pushes the shorter card's chart content up and breaks the visual
+   alignment between the two — a pre-existing issue on the live site itself, not
+   introduced by this build. Reserve 2 lines' worth of height on both so their
+   content always starts flush. Same fix, same real classes, as the TPP build. */
+.mp-correct-score-card ._card-title_hteoa_31,
+.mp-btts-card ._card-title_hteoa_31{ line-height:1.3; min-height:2.6em;}
+</style>
+
+</head>
+<body class="wp-singular news-template-default single single-news postid-272589 wp-embed-responsive wp-theme-swv">
+<div id="app">
+<header class="mega-menu mega-menu--desktop position-fixed bg-4 start-0 end-0">
+  <div class="position-relative w-100">
+  <div class="container-header w-100 mx-auto px-5 h-50px">
+    <!-- Desktop Header: Only visible at xl and above -->
+    <div class="d-none d-xl-flex align-items-center">
+                <a href="https://www.sportwettenvergleich.net/" class="me-3 d-flex align-items-center flex-shrink-0 position-relative">
+            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/SWV-logo.a42aa6.svg" alt="SWV Logo" width="101" height="40" class="logo-main">
+          </a>
+                <nav class="flex-grow-1">
+          <ul class="d-flex align-items-center justify-content-center m-0 p-0 list-unstyled">
+                                        <li id="collapse-800" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px show-menu-column-titles">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="#" aria-label="Wettanbieter">Wettanbieter</a>
+                                  <ul class="d-none hover-toggle-display__child mega-menu__desktop-dropdown position-absolute top-100 start-0 end-0 list-unstyled p-0 py-6 mw-none z-1">
+                    <div class="container">
+                      <div class="row mx-n3">
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/wettanbieter-test/">Beste Wettanbieter</a>
+                                                                      </li>
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/sportwetten-zahlungsmoeglichkeiten/">Zahlungsmethoden</a>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/neue-wettanbieter/">Neue Wettanbieter</a>
+                                                                      </li>
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/wettanbieter-ohne-lugas/">Wettanbieter ohne Lugas</a>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/wettanbieter-ohne-oasis-und-deutsche-lizenz/">Wettanbieter ohne OASIS</a>
+                                                                      </li>
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/beste-online-casinos/">Beste Online Casinos</a>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/sportwetten-ohne-steuer/">Wettanbieter ohne Steuer</a>
+                                                                      </li>
+                                                                  <li>
+                                    <a class="float-start full-width-m30px d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="#" data-bs-toggle="collapse" data-bs-target="#collapse-801--desktop" aria-controls="collapse-801--desktop">Länder</a>
+                                                                          <div class="mega-menu__chevron--desktop h-40px w-30px d-flex align-items-center cursor-pointer justify-content-center" data-bs-toggle="collapse" data-bs-target="#collapse-801--desktop" aria-controls="collapse-801--desktop">
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/chevron-down--orange.48b48b.svg" alt="Toggle Menu Dropdown" loading="lazy">
+                                      </div>
+                                      <ul class="list-unstyled p-0 ps-7 collapse" id="collapse-801--desktop" data-bs-parent="#collapse-800" aria-labelledby="collapse-801--desktop">
+                                        <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/deutsche-wettanbieter/">Deutsche Wettanbieter</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/oesterreichische-wettanbieter/">Österreichische Wettanbieter</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/sportwetten-schweiz/">Sportwetten Schweiz</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/englische-wettanbieter-buchmacher-online/">Englische Wettanbieter</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/asiatische-buchmacher/">Asiatische Wettanbieter</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                                  <li class="px-1 d-flex align-items-center">
+                                            <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                            <a class="sub-menu-item d-block hover-font-hyperlink ms-1 fw-light ellipsis fs-12 lh-50px font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/luxemburgische-wettanbieter/">Luxemburgische Wettanbieter</a>
+                                          </li>
+                                          <div style="height: 1px;" class="bg-dark-blue-swv-400"></div>
+                                                                              </ul>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                              </div>
+                    </div>
+                  </ul>
+                              </li>
+                                        <li id="collapse-188059" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px ">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="#" aria-label="Wettbonus">Wettbonus</a>
+                                  <ul class="d-none hover-toggle-display__child mega-menu__desktop-dropdown position-absolute top-100 start-0 end-0 list-unstyled p-0 py-6 mw-none z-1">
+                    <div class="container">
+                      <div class="row mx-n3">
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/sportwetten-bonus-vergleich//">Sportwetten Bonus</a>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                                                            <li class="col col-3 px-3">
+                                                                                      <ul class="list-unstyled p-0">
+                                                                  <li>
+                                    <a class=" d-block hover-font-hyperlink ellipsis px-3 fs-14 fw-normal font-alt-primary text-decoration-none lh-40px" href="https://www.sportwettenvergleich.net/online-wetten-mit-startguthaben/">Bonus ohne Einzahlung</a>
+                                                                      </li>
+                                                              </ul>
+                                                      </li>
+                                              </div>
+                    </div>
+                  </ul>
+                              </li>
+                                        <li id="collapse-187975" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px ">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="https://www.sportwettenvergleich.net/kickform/fussball-statistiken/" aria-label="Fußball Statistiken">Fußball Statistiken</a>
+                              </li>
+                                        <li id="collapse-188007" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px ">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="https://www.sportwettenvergleich.net/kickform/fussballvorhersagen/" aria-label="Fußball Tipps">Fußball Tipps</a>
+                              </li>
+                                        <li id="collapse-188063" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px ">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="https://www.sportwettenvergleich.net/wettforum/" aria-label="Wettforum">Wettforum</a>
+                              </li>
+                                        <li id="collapse-232075" class="hover-toggle-display__parent hover-highlight-link__parent d-flex align-items-center h-50px ">
+                <a class="d-block mx-6 fs-14 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none text-center" href="https://www.sportwettenvergleich.net/news/" aria-label="News &amp; Analysen">News &amp; Analysen</a>
+                              </li>
+                      </ul>
+        </nav>
+        <div class="ms-3">
+          <form role="search" method="get" class="d-flex position-relative align-items-center" action="https://www.sportwettenvergleich.net/">
+  <label for="search-desktop" class="visually-hidden">suchen</label>
+  <input id="search-desktop" class="search-field h-36px p-4 pe-8 w-200px outline-none rounded-3 font-gray-500 fs-16 border-none" type="search" value="" name="s" aria-label="Suchen">
+  <span class="searchBox-clear js-clearSearchBox" style="opacity: 0;">x</span>
+  <button class="bg-transparent ms-n8 h-36px w-30px p-0 border-0 d-flex align-items-center justify-content-center">
+    <img width="20" height="20" src="assets/real-madrid-vs-inter-milan-Y17vo/img/search-icon--grey.d61f89.svg" alt="Search Icon" loading="lazy">
+  </button>
+</form>
+        </div>
+      </div>
+      <!-- Mobile Header: Only visible below xl -->
+      <div class="mobile-header d-xl-none d-flex align-items-center w-100 mobile-header--height">
+        <div class="flex-shrink-0 mobile-logo-min-width">
+                    <a href="https://www.sportwettenvergleich.net/" class="d-flex align-items-center flex-shrink-0 position-relative">
+              <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/SWV-logo.a42aa6.svg" alt="SWV Logo" width="90" height="36" class="logo-main">
+            </a>
+                  </div>
+        <div class="d-flex align-items-center justify-content-end flex-grow-1 mobile-header-icons-gap">
+          <a href="https://www.sportwettenvergleich.net/sportwetten-bonus-vergleich/" class="gift-icon-link position-relative d-flex align-items-center">
+            <img class="gift-icon d-block" src="assets/real-madrid-vs-inter-milan-Y17vo/img/gift.d485e9.svg" alt="Gift" width="24" height="24">
+                                        <span class="promocode-count position-absolute d-flex align-items-center justify-content-center fw-bold p-0 z-2 rounded-circle">
+                9
+                </span>
+                      </a>
+          <a href="#" class="d-flex align-items-center position-relative" onclick="document.getElementById('search').classList.toggle('translate-x-minus-full'); document.getElementById('navbarNav').classList.add('is-closed'); document.querySelector('.search-icon').classList.toggle('d-none'); document.querySelector('.close-icon').classList.toggle('d-none'); return false;">
+            <img width="24" height="24" class="search-icon" src="assets/real-madrid-vs-inter-milan-Y17vo/img/search-icon--white.972703.svg" alt="Search Icon" loading="lazy">
+            <img class="close-icon d-none" src="assets/real-madrid-vs-inter-milan-Y17vo/img/close-icon.6d7df5.svg" alt="Close Icon" width="24" height="24" loading="lazy">
+          </a>
+          <a href="#" class="d-flex align-items-center" onclick="document.getElementById('navbarNav').classList.toggle('is-closed'); document.getElementById('search').classList.add('translate-x-minus-full'); document.querySelector('.search-icon').classList.remove('d-none'); document.querySelector('.close-icon').classList.add('d-none'); return false;">
+            <img width="24" height="24" class="burger-icon" src="assets/real-madrid-vs-inter-milan-Y17vo/img/burger-icon.d0bb4f.svg" alt="Burger Icon" loading="lazy">
+          </a>
+        </div>
+      </div>
+      <!-- Mobile Nav and Search: Only visible below xl -->
+      <nav id="navbarNav" class="mega-menu__nav--mobile is-closed d-flex d-xl-none position-absolute top-100 start-0 end-0 mega-menu__mobile-nav vertical-scroll py-3">
+        <div class="container">
+          <ul class="list-unstyled p-0 m-0">
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative show-menu-column-titles">
+                                  <a data-bs-toggle="collapse" data-bs-target="#collapse-800--mobile" aria-controls="collapse-800--mobile" class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none z-1" href="#" aria-label="Wettanbieter">Wettanbieter</a>
+                  <div class="mega-menu__chevron--mobile h-50px w-50px d-flex align-items-center justify-content-end">
+                    <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/chevron-down--orange.48b48b.svg" alt="Toggle Menu Dropdown" loading="lazy">
+                  </div>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                  <ul id="collapse-800--mobile" class="collapse list-unstyled p-0 m-0" aria-labelledby="collapse-800--mobile" data-bs-parent="#navbarNav">
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-162549--mobile" aria-labelledby="collapse-162549--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/wettanbieter-test/">Beste Wettanbieter</a>
+                                                              </li>
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/sportwetten-zahlungsmoeglichkeiten/">Zahlungsmethoden</a>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-187952--mobile" aria-labelledby="collapse-187952--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/neue-wettanbieter/">Neue Wettanbieter</a>
+                                                              </li>
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/wettanbieter-ohne-lugas/">Wettanbieter ohne Lugas</a>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-187962--mobile" aria-labelledby="collapse-187962--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/wettanbieter-ohne-oasis-und-deutsche-lizenz/">Wettanbieter ohne OASIS</a>
+                                                              </li>
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/beste-online-casinos/">Beste Online Casinos</a>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-198037--mobile" aria-labelledby="collapse-198037--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/sportwetten-ohne-steuer/">Wettanbieter ohne Steuer</a>
+                                                              </li>
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a data-bs-toggle="collapse" aria-controls="collapse-801--mobile" data-bs-target="#collapse-801--mobile" class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none z-1" href="#">Länder</a>
+                                  <div class="mega-menu__chevron--mobile h-50px w-50px d-flex align-items-center justify-content-end">
+                                    <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/chevron-down--orange.48b48b.svg" alt="Toggle Menu Dropdown" loading="lazy">
+                                  </div>
+                                  <ul id="collapse-801--mobile" aria-labelledby="collapse-801--mobile" class="collapse collapse-custom list-unstyled p-0 m-0">
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/deutsche-wettanbieter/">Deutsche Wettanbieter</a>
+                                                                              </li>
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/oesterreichische-wettanbieter/">Österreichische Wettanbieter</a>
+                                                                              </li>
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/sportwetten-schweiz/">Sportwetten Schweiz</a>
+                                                                              </li>
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/englische-wettanbieter-buchmacher-online/">Englische Wettanbieter</a>
+                                                                              </li>
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/asiatische-buchmacher/">Asiatische Wettanbieter</a>
+                                                                              </li>
+                                                                          <li class="d-flex flex-wrap ps-9">
+                                        <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/dot--orange.c589a9.svg" alt="Bulletpoint">
+                                        <a class="sub-menu-item fw-light hover-font-hyperlink fs-12 ps-4 ellipsis full-width-m50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/luxemburgische-wettanbieter/">Luxemburgische Wettanbieter</a>
+                                                                                  <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                                                              </li>
+                                                                      </ul>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                      </ul>
+                              </li>
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative ">
+                                  <a data-bs-toggle="collapse" data-bs-target="#collapse-188059--mobile" aria-controls="collapse-188059--mobile" class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none z-1" href="#" aria-label="Wettbonus">Wettbonus</a>
+                  <div class="mega-menu__chevron--mobile h-50px w-50px d-flex align-items-center justify-content-end">
+                    <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/chevron-down--orange.48b48b.svg" alt="Toggle Menu Dropdown" loading="lazy">
+                  </div>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                                  <ul id="collapse-188059--mobile" class="collapse list-unstyled p-0 m-0" aria-labelledby="collapse-188059--mobile" data-bs-parent="#navbarNav">
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-209215--mobile" aria-labelledby="collapse-209215--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/sportwetten-bonus-vergleich//">Sportwetten Bonus</a>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                                                <li class="d-flex flex-wrap position-relative">
+                                                                          <ul id="collapse-209222--mobile" aria-labelledby="collapse-209222--mobile" class=" list-unstyled p-0 m-0 mega-menu__sub-menu--level-1">
+                                                                                        <li class="d-flex flex-wrap position-relative">
+                                                                  <a class="fw-normal fs-14 ellipsis w-100 ps-7 hover-font-hyperlink lh-50px flex-grow-1 font-alt-primary text-decoration-none" href="https://www.sportwettenvergleich.net/online-wetten-mit-startguthaben/">Bonus ohne Einzahlung</a>
+                                                              </li>
+                                                      </ul>
+                                              </li>
+                                      </ul>
+                              </li>
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative ">
+                                  <a class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none" href="https://www.sportwettenvergleich.net/kickform/fussball-statistiken/" aria-label="Fußball Statistiken">Fußball Statistiken</a>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                              </li>
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative ">
+                                  <a class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none" href="https://www.sportwettenvergleich.net/kickform/fussballvorhersagen/" aria-label="Fußball Tipps">Fußball Tipps</a>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                              </li>
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative ">
+                                  <a class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none" href="https://www.sportwettenvergleich.net/wettforum/" aria-label="Wettforum">Wettforum</a>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                              </li>
+                                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative ">
+                                  <a class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none" href="https://www.sportwettenvergleich.net/news/" aria-label="News &amp; Analysen">News &amp; Analysen</a>
+                                <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+                              </li>
+                        <li class="hover-highlight-link__parent d-flex flex-wrap align-items-center position-relative">
+              <a class="flex-grow-1 ellipsis w-100 ms-4 lh-50px fs-16 fw-normal font-alt-primary hover-highlight-link__child text-decoration-none d-flex align-items-center" href="https://www.sportwettenvergleich.net/sportwetten-bonus-vergleich" aria-label="Exklusive Wettboni">Exklusive Wettboni
+                <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/icon-bonus.3d1de9.svg" alt="Sportwetten Bonus" width="18" height="18" class="ms-3 mb-2">
+              </a>
+              <div class="horizontal-divider bg-dark-blue-swv-400 w-100"></div>
+            </li>
+
+            <div class="mobile-menu__socials d-flex align-items-center justify-content-center my-4 ms-4" data-testid="mobile-menu-socials-container">
+              <div class="mobile-menu__socials-title fs-14">FOLGE UNS AUF</div>
+
+                              <ul class="list-unstyled pe-0 d-flex align-items-center gap-3" data-testid="mobile-menu-socials-items">
+                                    <li class="d-flex align-items-center justify-content-center">
+                    <a href="https://x.com/swvsports" class="d-flex align-items-center" target="_blank" rel="noopener noreferrer">
+                      <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials.png" class="mobile-menu-socials-icon" alt="" decoding="async" loading="lazy">
+                    </a>
+                  </li>
+                                    <li class="d-flex align-items-center justify-content-center">
+                    <a href="https://www.instagram.com/swv.sports/#" class="d-flex align-items-center" target="_blank" rel="noopener noreferrer">
+                      <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Insta.png" class="mobile-menu-socials-icon" alt="" decoding="async" loading="lazy">
+                    </a>
+                  </li>
+                                    <li class="d-flex align-items-center justify-content-center">
+                    <a href="https://www.youtube.com/@swv.sports" class="d-flex align-items-center" target="_blank" rel="noopener noreferrer">
+                      <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-1.png" class="mobile-menu-socials-icon" alt="" decoding="async" loading="lazy">
+                    </a>
+                  </li>
+                                    <li class="d-flex align-items-center justify-content-center">
+                    <a href="https://www.tiktok.com/@swv.sports" class="d-flex align-items-center" target="_blank" rel="noopener noreferrer">
+                      <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-2.png" class="mobile-menu-socials-icon" alt="" decoding="async" loading="lazy">
+                    </a>
+                  </li>
+                                    <li class="d-flex align-items-center justify-content-center">
+                    <a href="https://www.facebook.com/profile.php?id=61579360421464" class="d-flex align-items-center" target="_blank" rel="noopener noreferrer">
+                      <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-3.png" class="mobile-menu-socials-icon" alt="" decoding="async" loading="lazy">
+                    </a>
+                  </li>
+                                  </ul>
+                          </div>
+
+          </ul>
+        </div>
+      </nav>
+      <div id="search" class="mega-menu__search-bar--mobile d-flex d-xl-none align-items-center translate-x-minus-full position-absolute start-0 end-0 h-74px bg-white top-100">
+        <div class="container">
+          <form role="search" method="get" class="position-relative d-flex w-100 align-items-center" action="https://www.sportwettenvergleich.net/">
+  <label for="search-mobile" class="visually-hidden">Suchen</label>
+  <input id="search-mobile" class="search-field h-40px bg-2 border-none font-gray-500 flex-grow-1 p-4 pe-8 w-200px outline-none rounded-3 font-gray-500 fs-16" type="search" value="" name="s" aria-label="Suchen">
+  <span class="searchBox-clear js-clearSearchBox" style="opacity: 0;">x</span>
+  <button class="bg-orange-swv-400 ms-3 rounded-3 h-40px w-40px p-0 border-0 d-flex align-items-center justify-content-center">
+    <img width="20" height="20" src="assets/real-madrid-vs-inter-milan-Y17vo/img/search-icon--white.972703.svg" alt="Search Icon" loading="lazy">
+  </button>
+</form>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="h-50px"></div>
+<nav class="horizontal-nav horizontal-nav--text d-flex" data-testid="horizontal-nav--text">
+  <div class="horizontal-nav-container" data-testid="horizontal-nav-container">
+    <ul class="d-flex align-items-stretch flex-nowrap" data-testid="horizontal-nav-list" style="cursor: default;">
+                      <li class="horizontal-nav-item d-flex nav-sticky-title" data-testid="horizontal-nav-item-text">
+                                    <div class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-white">
+                Top Themen
+              </div>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter News">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-News-24.svg" alt="News" width="16" height="16" class="me-2 d-none d-md-block">
+                                  News
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/fussball/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Fußball">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-football-24.svg" alt="Fußball" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Fußball
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/mma-ufc/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter UFC">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-UFC-24.svg" alt="UFC" width="16" height="16" class="me-2 d-none d-md-block">
+                                  UFC
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/motorsport/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Motorsport">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-motorsport-24.svg" alt="Motorsport" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Motorsport
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/basketball/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Basketball">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-basket-24.svg" alt="Basketball" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Basketball
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/darts/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Darts">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-darts-24.svg" alt="Darts" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Darts
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/tennis/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Tennis">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-tennis-24.svg" alt="Tennis" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Tennis
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/eishockey/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Eishockey">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-Icehockey-24.svg" alt="Eishockey" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Eishockey
+              </a>
+                              </li>
+                      <li class="horizontal-nav-item d-flex" data-testid="horizontal-nav-item-image">
+                                    <a href="https://www.sportwettenvergleich.net/news/handball/" class="d-flex justify-content-center align-items-center px-3 fs-12 fw-bold text-decoration-none" aria-label="Zum Anbieter Handball">
+                                      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Icon-handball-24.svg" alt="Handball" width="16" height="16" class="me-2 d-none d-md-block">
+                                  Handball
+              </a>
+                              </li>
+          </ul>
+  </div>
+</nav>
+<main id="main" class="main-page has-left-sidebar has-right-sidebar">
+
+      <div class="wis-sidebar-left-col">
+              <aside class="wis-sidebar wis-sidebar-left">
+          
+<div class="wp-block-wis-card wp-block-wis-top-competitions" data-testid="grid-league-block">
+
+        <div class="wp-block-wis-card__title" id="top-competitions-title-6a9e5d24e224f">Beliebte Wettbewerbe</div>
+    
+    <nav class="wp-block-wis-card__list" aria-labelledby="top-competitions-title-6a9e5d24e224f">
+                                <a href="https://www.sportwettenvergleich.net/kickform/bundesliga/" class="wp-block-wis-card__list-item wp-block-wis-card__list-item--nav" data-testid="grid-league-block-link">
+                                    <img decoding="async" class="wp-block-wis-card__list-item-image wp-block-wis-card__list-item-image--nav" src="https://api.wis-ltd.net/images/competitions/3.webp" alt="Bundesliga" width="25" height="25" loading="lazy">
+                                Bundesliga            </a>
+                                <a href="https://www.sportwettenvergleich.net/kickform/2-bundesliga/" class="wp-block-wis-card__list-item wp-block-wis-card__list-item--nav" data-testid="grid-league-block-link">
+                                    <img decoding="async" class="wp-block-wis-card__list-item-image wp-block-wis-card__list-item-image--nav" src="https://api.wis-ltd.net/images/competitions/27.webp" alt="2. Bundesliga" width="25" height="25" loading="lazy">
+                                2. Bundesliga            </a>
+                                <a href="https://www.sportwettenvergleich.net/kickform/3-liga/" class="wp-block-wis-card__list-item wp-block-wis-card__list-item--nav" data-testid="grid-league-block-link">
+                                    <img decoding="async" class="wp-block-wis-card__list-item-image wp-block-wis-card__list-item-image--nav" src="https://api.wis-ltd.net/images/competitions/28.webp" alt="3. Liga" width="25" height="25" loading="lazy">
+                                3. Liga            </a>
+                                <a href="https://www.sportwettenvergleich.net/kickform/champions-league/" class="wp-block-wis-card__list-item wp-block-wis-card__list-item--nav" data-testid="grid-league-block-link">
+                                    <img decoding="async" class="wp-block-wis-card__list-item-image wp-block-wis-card__list-item-image--nav" src="https://api.wis-ltd.net/images/competitions/46.webp" alt="Champions League" width="25" height="25" loading="lazy">
+                                Champions League            </a>
+                                <a href="https://www.sportwettenvergleich.net/kickform/premier-league/" class="wp-block-wis-card__list-item wp-block-wis-card__list-item--nav" data-testid="grid-league-block-link">
+                                    <img decoding="async" class="wp-block-wis-card__list-item-image wp-block-wis-card__list-item-image--nav" src="https://api.wis-ltd.net/images/competitions/1.webp" alt="Premier League" width="25" height="25" loading="lazy">
+                                Premier League            </a>
+            </nav>
+
+            <a href="https://www.sportwettenvergleich.net/kickform/" class="wp-block-wis-card__see-all" data-testid="grid-league-block-link-see-all">
+            Alle Wettbewerbe            <span class="wis-icon-chevron"></span>
+        </a>
+    </div>
+
+
+
+        </aside>
+          </div>
+  <div class="wis-content-col">
+<!-- main-column slot below, replaced by build.py -->
+<section class="bg-gray-100 position-relative">
+  <header class="pt-5 pb-3 position-relative container">
+    <div class="d-lg-flex align-items-center h-100 d-none position-absolute top-0 bottom-0 end-0 overflow-hidden">
+      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/header-stars.be7985.svg" alt="Page Header Stars" width="190" height="170" loading="eager">
+    </div>
+    <nav aria-label="breadcrumb" id="breadcrumbs">
+    <ol itemscope itemtype="https://schema.org/BreadcrumbList" class="breadcrumb fs-lg-14 fw-medium d-flex flex-nowrap mb-3 overflow-auto text-nowrap">
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="breadcrumb-item d-flex">
+        <meta itemprop="position" content="1">
+        <meta itemprop="name" content="SWV">
+        <meta itemprop="item" content="https://www.sportwettenvergleich.net/">
+        <a href="https://www.sportwettenvergleich.net" class="text-decoration-none fw-medium d-flex align-content-center hover-dark-blue-swv-900">
+          <svg class="me-2" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1943_1952)">
+              <path d="M13.7899 6.88972L7.75241 0.855343L7.34772 0.450656C7.25551 0.359057 7.13082 0.307648 7.00085 0.307648C6.87087 0.307648 6.74618 0.359057 6.65397 0.450656L0.211783 6.88972C0.117301 6.98383 0.0426296 7.09592 -0.00782254 7.21937C-0.0582747 7.34282 -0.0834854 7.47512 -0.0819665 7.60847C-0.0757165 8.15847 0.382096 8.59753 0.932096 8.59753H1.59616V13.6866H12.4055V8.59753H13.0837C13.3508 8.59753 13.6024 8.49284 13.7915 8.30378C13.8846 8.21099 13.9583 8.10065 14.0085 7.97915C14.0586 7.85765 14.0842 7.72741 14.0837 7.59597C14.0837 7.33034 13.979 7.07878 13.7899 6.88972ZM7.87585 12.5616H6.12585V9.37409H7.87585V12.5616ZM11.2805 7.47253V12.5616H8.87585V8.99909C8.87585 8.65378 8.59616 8.37409 8.25085 8.37409H5.75085C5.40553 8.37409 5.12585 8.65378 5.12585 8.99909V12.5616H2.72116V7.47253H1.22116L7.00241 1.69597L7.36335 2.05691L12.7821 7.47253H11.2805Z" fill="#FD823D"></path>
+            </g>
+            <defs>
+              <clipPath id="clip0_1943_1952">
+                <rect width="14" height="14" fill="white"></rect>
+              </clipPath>
+            </defs>
+          </svg>
+          SWV
+        </a>
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="breadcrumb-item">
+        <meta itemprop="position" content="2">
+        <meta itemprop="name" content="Kickform">
+        <meta itemprop="url" content="https://www.sportwettenvergleich.net/kickform/">
+        <a href="https://www.sportwettenvergleich.net/kickform/" itemprop="item" class="text-decoration-none fw-medium hover-dark-blue-swv-900">Kickform</a>
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="breadcrumb-item">
+        <meta itemprop="position" content="3">
+        <meta itemprop="name" content="Champions League">
+        <meta itemprop="url" content="https://www.sportwettenvergleich.net/kickform/champions-league/">
+        <a href="https://www.sportwettenvergleich.net/kickform/champions-league/" itemprop="item" class="text-decoration-none fw-medium hover-dark-blue-swv-900">Champions League</a>
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="breadcrumb-item fw-light active">
+        <meta itemprop="position" content="4">
+        <meta itemprop="name" content="Real Madrid vs Inter Milan">
+        <meta itemprop="url" content="https://www.sportwettenvergleich.net/kickform/champions-league/real-madrid-vs-inter-milan/Y17vo/">
+        Real Madrid vs Inter Milan
+      </li>
+    </ol>
+  </nav>
+    <h1 class="page-header__title fw-bold mb-3 px-0 position-relative font-dark-blue-swv-900">
+      Real Madrid vs. Inter Milan &ndash; Tipp, Statistiken, Prognosen &amp; Quoten 8. September 2026
+    </h1>
+    <div class="d-flex align-items-end justify-content-between mb-2"></div>
+  </header>
+</section>
+
+<div class="entry-content pt-5">
+    <div class="wp-block-wis-blocks-background-wrapper background--standard">
+<div class="intro-crop-wrapper container mx-auto" data-testid="atf-intro">
+    <input type="checkbox" id="swv-intro-real-madrid-inter" class="intro-crop__toggle" hidden>
+    <div class="intro-crop__body">
+      <span class="intro-crop__gradient" aria-hidden="true"></span>
+      <label class="intro-crop__see-more" for="swv-intro-real-madrid-inter" tabindex="0">
+        Mehr Lesen
+      </label>
+      <div class="intro-crop__content paragraph-block m-0 has-text-align-left intro">
+        Vorhersage, Statistiken, Quoten und Wett Tipps f&uuml;r das Spiel Real Madrid gegen Inter Milan am 8. September 2026 um 21:00 Uhr. Erfolgreicher tippen und wetten dank wissenschaftlich fundierter Vorhersage mit der KickForm Fu&szlig;ballformel.
+      </div>
+      <label class="intro-crop__see-less" for="swv-intro-real-madrid-inter" tabindex="0">
+        Weniger anzeigen
+      </label>
+    </div>
+  </div>
+
+<div class="wp-block-wis-promo-banner" data-items-count="1" data-items-weights="[1]" style="--height: 160px;">
+            <div class="wp-block-wis-blocks-desktop-mobile-media-block">
+            <figure class="desktop-mobile-media">
+                                    <a href="https://www.sportwettenvergleich.net/goto/beef-kickform/" class="desktop-mobile-media__link" target="_blank" rel="nofollow sponsored noopener noreferrer" data-testid="competition-promo-banner">
+                <picture class="desktop-mobile-media__picture">
+                                            <source media="(max-width: 576px)" srcset="assets/real-madrid-vs-inter-milan-Y17vo/img/Beef-banner-mobile.png">
+                                                                <source media="(min-width: 577px)" srcset="assets/real-madrid-vs-inter-milan-Y17vo/img/Beef-banner-desktop.png">
+                        <img decoding="async" class="desktop-mobile-media__img" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Beef-banner-desktop.png" alt="Beef: 20% bis 50&euro; als Gratiswette" loading="lazy" width="1616" height="160">
+                                    </picture>
+                                    </a>
+                            </figure>
+        </div>
+    </div>
+
+<p>Das Spiel Real Madrid gegen Inter Milan findet am 8. September 2026 um 21:00 statt. Basierend auf vergangenen Ergebnissen prognostiziert unser Algorithmus einen Sieg von Inter Milan mit einer Wahrscheinlichkeit von 43%, w&auml;hrend das wahrscheinlichste Endergebnis 1:1 mit einer Wahrscheinlichkeit von 9% sein wird.</p>
+
+<div class="stats-mount-point component-matchpredictions wp-block-wis-stats-integration" data-props="{&quot;componentName&quot;:&quot;matchpredictions&quot;,&quot;useKickformContext&quot;:true,&quot;competitionId&quot;:46,&quot;playersMarket&quot;:&quot;goals&quot;,&quot;teamsMarket&quot;:&quot;goals&quot;,&quot;matchTipsMarketId&quot;:&quot;&quot;,&quot;matchTipsWidgetType&quot;:&quot;all&quot;,&quot;matchTipsButtonText&quot;:&quot;&quot;,&quot;matchTipsButtonLink&quot;:&quot;&quot;,&quot;top3MatchStatsMarketId&quot;:&quot;25&quot;,&quot;top3MatchStatsButtonText&quot;:&quot;&quot;,&quot;top3MatchStatsButtonLink&quot;:&quot;&quot;,&quot;showFakeH2&quot;:true,&quot;isTomorrowSet&quot;:false,&quot;isWeekendSet&quot;:false,&quot;topUpcomingMatchesTeaser&quot;:false,&quot;fixtureId&quot;:272057,&quot;teamId&quot;:&quot;&quot;,&quot;pageAnchor&quot;:&quot;&quot;,&quot;odds&quot;:[],&quot;tabsOnly&quot;:false,&quot;homeUrl&quot;:&quot;https:\/\/www.sportwettenvergleich.net&quot;,&quot;isKickform&quot;:true,&quot;portalCode&quot;:&quot;swv&quot;,&quot;round&quot;:null,&quot;userCountry&quot;:&quot;mt&quot;,&quot;bookiesData&quot;:[{&quot;id&quot;:66286,&quot;link&quot;:&quot;https:\/\/www.sportwettenvergleich.net\/goto\/22bet-kickform\/&quot;},{&quot;id&quot;:100898,&quot;link&quot;:&quot;https:\/\/www.sportwettenvergleich.net\/goto\/20bet-kickform\/&quot;},{&quot;id&quot;:194430,&quot;link&quot;:&quot;https:\/\/www.sportwettenvergleich.net\/goto\/rollino-kickform\/&quot;}]}"><div class="stats-page match-page"><div class="_card_hteoa_1 _card-full-width-mobile_hteoa_9 mp-match-card" data-testid="matchatfcard"><div class="_card-content_hteoa_54"><a href="https://www.sportwettenvergleich.net/kickform/champions-league/" aria-label="Champions League" data-testid="matchatfcard-competition" class="mp-competition-name mp-competition-name--mobile">Champions League</a><div class="mp-match-card-grid"><a href="https://www.sportwettenvergleich.net/kickform/team/real-madrid/" aria-label="Real Madrid Team Page" class="mp-match-card-grid-item mp-team-card"><div class="mp-team-home-card-content"><img data-testid="matchatfcard-hometeam-logo" src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-354-x2.webp" alt="Real Madrid logo" class="mp-team-logo" width="50" height="50"><div class="mp-team-name" data-testid="matchatfcard-hometeam-name">Real Madrid</div><div class="form-stats"><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div></div></div></a><div class="mp-match-card-grid-item mp-match-details"><div class="mp-competition-name mp-competition-name--desktop"><a href="https://www.sportwettenvergleich.net/kickform/champions-league/" aria-label="Champions League" data-testid="matchatfcard-competition" class="mp-competition-name">Champions League</a></div><div><div class="mp-match-date">Morgen</div><div class="mp-match-time">21:00</div><div></div></div><div class="mp-venue-referee-details mp-venue-referee-details--desktop"><div>Spielort: <span>Santiago Bernabéu Stadium</span></div> / <div>Schiedsrichter: <span>N/A</span></div></div></div><a href="https://www.sportwettenvergleich.net/kickform/team/inter-milan/" aria-label="Inter Milan Team Page" class="mp-match-card-grid-item mp-team-card"><div class="mp-team-away-card-content"><img data-testid="matchatfcard-awayteam-logo" src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-340-x2.webp" alt="Inter Milan logo" class="mp-team-logo" width="50" height="50"><div class="mp-team-name" data-testid="matchatfcard-awayteam-name">Inter Milan</div><div class="form-stats"><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div><div class="form-circle empty" title="No data available" aria-hidden="true"></div></div></div></a></div><div class="_vote-slider_8gkw7_1" data-testid="who-will-win-match-page"><div class="_vote-slider__header_8gkw7_5"><button type="button" class="_vote-slider__arrow_8gkw7_13 _vote-slider__arrow--prev_8gkw7_31 _vote-slider__arrow--disabled_8gkw7_28" disabled="" aria-label="Zurück" data-testid="who-will-win-match-page-arrow-left"></button><div class="_vote-slider__title_8gkw7_42"><div>Wer Gewinnt?</div><div class="_vote-slider__vote-message_8gkw7_56">Jetzt abstimmen:</div></div><button type="button" class="_vote-slider__arrow_8gkw7_13 _vote-slider__arrow--next_8gkw7_34" aria-label="Weiter" data-testid="who-will-win-match-page-arrow-right"></button></div><div class="_vote-slider__body_8gkw7_70"><div class="_vote-slider__track-wrapper_8gkw7_74"><div class="_vote-slider__track_8gkw7_74" style="--vote-slider-slide-count: 3; transform: translateX(calc(-0 * 100% / var(--vote-slider-slide-count)));"><div class="_vote-slider__slide_8gkw7_84"><div class="_vote-slider__options_8gkw7_91"><button type="button" class="_vote-slider__option-button_8gkw7_98 _vote-slider__option-button--logo_8gkw7_126" aria-label="Auf Real Madrid tippen" data-testid="who-will-win-match-page-1x2-home"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-354-x2.webp" alt="Real Madrid" class="_vote-slider__option-logo_8gkw7_135" width="40" height="40"></button><button type="button" class="_vote-slider__option-button_8gkw7_98" aria-label="Remis" data-testid="who-will-win-match-page-1x2-draw">Remis</button><button type="button" class="_vote-slider__option-button_8gkw7_98 _vote-slider__option-button--logo_8gkw7_126" aria-label="Auf Inter Milan tippen" data-testid="who-will-win-match-page-1x2-away"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-340-x2.webp" alt="Inter Milan" class="_vote-slider__option-logo_8gkw7_135" width="40" height="40"></button></div></div><div class="_vote-slider__slide_8gkw7_84"><div class="_vote-slider__options_8gkw7_91"><button type="button" class="_vote-slider__option-button_8gkw7_98" aria-label="Ja" data-testid="who-will-win-match-page-btts-yes">Ja</button><button type="button" class="_vote-slider__option-button_8gkw7_98" aria-label="Nein" data-testid="who-will-win-match-page-btts-no">Nein</button></div></div><div class="_vote-slider__slide_8gkw7_84"><div class="_vote-slider__options_8gkw7_91"><button type="button" class="_vote-slider__option-button_8gkw7_98" aria-label="Über 2.5" data-testid="who-will-win-match-page-ou25g-over">Über 2.5</button><button type="button" class="_vote-slider__option-button_8gkw7_98" aria-label="Unter 2.5" data-testid="who-will-win-match-page-ou25g-under">Unter 2.5</button></div></div></div></div></div></div><div class="mp-venue-referee-details mp-venue-referee-details--mobile"><div>Spielort: <span>Santiago Bernabéu Stadium</span></div> / <div>Schiedsrichter: <span>N/A</span></div></div><div data-testid="stickytabs-widget" class="sticky-tabs"><div data-testid="stickytabs-widget-predictions" id="tab-0" class="sticky-tabs__tab sticky-tabs__tab--selected" data-selected="true">Prognosen</div><div data-testid="stickytabs-widget-odds" id="tab-1" class="sticky-tabs__tab" data-selected="false">Quoten</div><div data-testid="stickytabs-widget-past-results" id="tab-2" class="sticky-tabs__tab" data-selected="false">Ergebnisse</div><div data-testid="stickytabs-widget-offers" id="tab-3" class="sticky-tabs__tab sticky-tabs__tab--offers" data-selected="false">Wettboni</div></div></div></div><div class="_card_hteoa_1" data-testid="valuetip-widget"><div class="_card-content_hteoa_54 value-tip"><div class="value-tip__header"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/value-tip-logo-swv.svg" alt="Kickform value tip logo" width="215" height="12"></div><div class="value-tip__content"><div class="value-tip__message">Beide Teams treffen: Ja</div><a href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" class="value-tip-cta" rel="nofollow noopener noreferrer sponsored" target="_blank" data-testid="valuetip-widget-cta"><div class="value-tip-cta__odd">1.63</div><div class="value-tip-cta__bookie" style="background-color: #0D1B2F; background-image: url(&quot;assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg&quot;);"></div></a></div><div class="value-tip__confidence-rating uc">Chance<div role="img" aria-label="3 out of 5 stars" style="display: flex; align-items: center; gap: 3px;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6.69533 0.49942L4.86449 4.21156L0.768236 4.80876C0.0336581 4.9153 -0.260734 5.82091 0.271975 6.3396L3.23552 9.22744L2.53459 13.3069C2.40842 14.0443 3.18505 14.5966 3.83552 14.2517L7.5 12.3256L11.1645 14.2517C11.8149 14.5938 12.5916 14.0443 12.4654 13.3069L11.7645 9.22744L14.728 6.3396C15.2607 5.82091 14.9663 4.9153 14.2318 4.80876L10.1355 4.21156L8.30467 0.49942C7.97663 -0.162261 7.02617 -0.170672 6.69533 0.49942Z" fill="#FFC53D"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6.69533 0.49942L4.86449 4.21156L0.768236 4.80876C0.0336581 4.9153 -0.260734 5.82091 0.271975 6.3396L3.23552 9.22744L2.53459 13.3069C2.40842 14.0443 3.18505 14.5966 3.83552 14.2517L7.5 12.3256L11.1645 14.2517C11.8149 14.5938 12.5916 14.0443 12.4654 13.3069L11.7645 9.22744L14.728 6.3396C15.2607 5.82091 14.9663 4.9153 14.2318 4.80876L10.1355 4.21156L8.30467 0.49942C7.97663 -0.162261 7.02617 -0.170672 6.69533 0.49942Z" fill="#FFC53D"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6.69533 0.49942L4.86449 4.21156L0.768236 4.80876C0.0336581 4.9153 -0.260734 5.82091 0.271975 6.3396L3.23552 9.22744L2.53459 13.3069C2.40842 14.0443 3.18505 14.5966 3.83552 14.2517L7.5 12.3256L11.1645 14.2517C11.8149 14.5938 12.5916 14.0443 12.4654 13.3069L11.7645 9.22744L14.728 6.3396C15.2607 5.82091 14.9663 4.9153 14.2318 4.80876L10.1355 4.21156L8.30467 0.49942C7.97663 -0.162261 7.02617 -0.170672 6.69533 0.49942Z" fill="#FFC53D"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M14.2318 4.80876L10.1355 4.21156L8.30467 0.49942C7.97663 -0.162261 7.02617 -0.170672 6.69533 0.49942L4.86449 4.21156L0.768236 4.80876C0.0336581 4.9153 -0.260734 5.82091 0.271975 6.3396L3.23552 9.22744L2.53459 13.3069C2.40842 14.0443 3.18505 14.5966 3.83552 14.2517L7.5 12.3256L11.1645 14.2517C11.8149 14.5938 12.5916 14.0443 12.4654 13.3069L11.7645 9.22744L14.728 6.3396C15.2607 5.82091 14.9663 4.9153 14.2318 4.80876V4.80876ZM10.3206 8.75641L10.985 12.6368L7.5 10.8059L4.01496 12.6368L4.67944 8.75641L1.85889 6.00876L5.75608 5.4424L7.5 1.9097L9.24392 5.4424L13.1411 6.00876L10.3206 8.75641V8.75641Z" fill="#FFC53D"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M14.2318 4.80876L10.1355 4.21156L8.30467 0.49942C7.97663 -0.162261 7.02617 -0.170672 6.69533 0.49942L4.86449 4.21156L0.768236 4.80876C0.0336581 4.9153 -0.260734 5.82091 0.271975 6.3396L3.23552 9.22744L2.53459 13.3069C2.40842 14.0443 3.18505 14.5966 3.83552 14.2517L7.5 12.3256L11.1645 14.2517C11.8149 14.5938 12.5916 14.0443 12.4654 13.3069L11.7645 9.22744L14.728 6.3396C15.2607 5.82091 14.9663 4.9153 14.2318 4.80876V4.80876ZM10.3206 8.75641L10.985 12.6368L7.5 10.8059L4.01496 12.6368L4.67944 8.75641L1.85889 6.00876L5.75608 5.4424L7.5 1.9097L9.24392 5.4424L13.1411 6.00876L10.3206 8.75641V8.75641Z" fill="#FFC53D"></path></svg></div></div><div class="swv-odds-block" id="swv-odds-valuetip"><div class="_read-more-content_13lqy_1 _clamped_13lqy_12"><span>Unser Top-Tipp: <b>Beide Teams treffen: Ja.</b> Die Kombination aus Real Madrids offensiver Ausrichtung zuhause und Inter Milans durchwachsener Auswärtsdefensive macht dies zu unserem klarsten Value-Pick für diese Partie. Mit einer von Kickform berechneten Trefferwahrscheinlichkeit von 60% auf beiden Seiten sehen wir hier den besten Ausgleich zwischen Wahrscheinlichkeit und Quote.</span><div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div></div><button type="button" class="swv-compare-btn" data-target="swv-odds-reveal-valuetip" aria-expanded="false" onclick="swvToggleCompare(this)">Quoten vergleichen<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="swv-odds-reveal" id="swv-odds-reveal-valuetip" hidden><div class="swv-odds-market-title"><b>Beide Teams treffen: Ja</b></div><div class="swv-bookie-rows"><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/22bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#074147"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/22Bet-logo.svg" alt="22bet"></span><span class="swv-bookie-row__odd">1.61</span><span class="swv-bookie-row__offer">100% bis 300€ Willkommensbonus</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row is-best" href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#0D1B2F"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg" alt="20bet"></span><span class="swv-bookie-row__odd"><span class="swv-bookie-row__best-icon" title="Beste Quote — automatisch berechnet aus allen gelisteten Quoten, nicht redaktionell ausgewählt"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="swv-bookie-row__odd-value">1.63</span></span><span class="swv-bookie-row__offer">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/rollino-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#00141C"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Rollino-logo.svg" alt="Rollino"></span><span class="swv-bookie-row__odd">1.58</span><span class="swv-bookie-row__offer">Bis zu 100€ Bonus für Neukunden</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a></div><div class="swv-odds-compare__footer">18+ &middot; BZgA.de &middot; Es gelten die AGB des Anbieters</div></div></div></div></div><div class="mp-grid mp-grid--outcomes mp-grid--2-cols"><div class="_card_hteoa_1 mp-outcome-card" data-testid="matchwinprob"><div class="_card-header_hteoa_16"><div class="_card-title_hteoa_31">Wahrscheinlichkeit Spielausgang<div class="_card-title-icon_hteoa_46"><div class="_tooltip-top_ypi30_63 _tooltip-container_ypi30_1" data-testid="matchwinprob-tooltip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 15 15" fill="none" class="info-icon"><path d="M6.99984 1.66669C3.7784 1.66669 1.1665 4.27953 1.1665 7.50002C1.1665 10.7224 3.7784 13.3334 6.99984 13.3334C10.2213 13.3334 12.8332 10.7224 12.8332 7.50002C12.8332 4.27953 10.2213 1.66669 6.99984 1.66669ZM6.99984 4.25405C7.54544 4.25405 7.98774 4.69635 7.98774 5.24196C7.98774 5.78756 7.54544 6.22986 6.99984 6.22986C6.45423 6.22986 6.01193 5.78756 6.01193 5.24196C6.01193 4.69635 6.45423 4.25405 6.99984 4.25405ZM8.31704 10.2285C8.31704 10.3844 8.19066 10.5108 8.03478 10.5108H5.96489C5.80901 10.5108 5.68263 10.3844 5.68263 10.2285V9.664C5.68263 9.50812 5.80901 9.38174 5.96489 9.38174H6.24715V7.87636H5.96489C5.80901 7.87636 5.68263 7.74998 5.68263 7.59411V7.02959C5.68263 6.87371 5.80901 6.74733 5.96489 6.74733H7.47027C7.62614 6.74733 7.75252 6.87371 7.75252 7.02959V9.38174H8.03478C8.19066 9.38174 8.31704 9.50812 8.31704 9.664V10.2285Z" fill="#6B7280"></path></svg></div></div></div></div><div class="_card-content_hteoa_54 mp-grid mp-grid--1-col"><div class="horizontal-bar-chart horizontal-bar-chart--3-segments"><div class="horizontal-bar-chart__container"><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--1" style="flex-basis: 36%;"></div><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--2" style="flex-basis: 21%;"></div><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--3" style="flex-basis: 43%;"></div></div><div class="horizontal-bar-chart__labels"><div class="horizontal-bar-chart__label horizontal-bar-chart__label--left" style="flex-basis: 36%;"><a href="https://www.sportwettenvergleich.net/kickform/team/real-madrid/" aria-label="Open Real Madrid team page" data-testid="matchwinprob-homelogo"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-354.webp" alt="Real Madrid logo" class="horizontal-bar-chart__logo" width="25" height="25" loading="lazy"></a><span>36%</span></div><div class="horizontal-bar-chart__label horizontal-bar-chart__label--center" style="flex-basis: 21%;"><span>21%</span></div><div class="horizontal-bar-chart__label horizontal-bar-chart__label--right" style="flex-basis: 43%;"><span>43%</span><a href="https://www.sportwettenvergleich.net/kickform/team/inter-milan/" aria-label="Open Inter Milan team page" data-testid="matchwinprob-awaylogo"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/team-340.webp" alt="Inter Milan logo" class="horizontal-bar-chart__logo" width="25" height="25" loading="lazy"></a></div></div></div></div><div class="swv-odds-block" id="swv-odds-matchoutcome"><div class="_read-more-content_13lqy_1 _clamped_13lqy_12"><span>Spielausgang: <b>Inter Milan mit knappem Vorteil.</b> Inter Milan geht als leichter Favorit in die Partie – unser Modell sieht die Nerazzurri mit 43% als wahrscheinlichsten Sieger vor Real Madrid (36%). Auswärts in der Champions League zeigt Inter traditionell eine stabile Defensive, während Real Madrid zuhause zwar offensivstark, aber phasenweise anfällig für Konter ist. Ein Remis (21%) bleibt ein reales Szenario, doch die Formkurve spricht knapp für einen Auswärtserfolg der Italiener.</span><div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div></div><button type="button" class="swv-compare-btn" data-target="swv-odds-reveal-matchoutcome" aria-expanded="false" onclick="swvToggleCompare(this)">Quoten vergleichen<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="swv-odds-reveal" id="swv-odds-reveal-matchoutcome" hidden><div class="swv-odds-market-title"><b>Sieg Inter Milan</b> (2)</div><div class="swv-bookie-rows"><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/22bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#074147"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/22Bet-logo.svg" alt="22bet"></span><span class="swv-bookie-row__odd">5.48</span><span class="swv-bookie-row__offer">100% bis 300€ Willkommensbonus</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row is-best" href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#0D1B2F"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg" alt="20bet"></span><span class="swv-bookie-row__odd"><span class="swv-bookie-row__best-icon" title="Beste Quote — automatisch berechnet aus allen gelisteten Quoten, nicht redaktionell ausgewählt"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="swv-bookie-row__odd-value">5.60</span></span><span class="swv-bookie-row__offer">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/rollino-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#00141C"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Rollino-logo.svg" alt="Rollino"></span><span class="swv-bookie-row__odd">5.35</span><span class="swv-bookie-row__offer">Bis zu 100€ Bonus für Neukunden</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a></div><div class="swv-odds-compare__footer">18+ &middot; BZgA.de &middot; Es gelten die AGB des Anbieters</div></div></div></div><div class="_card_hteoa_1 mp-correct-score-card" data-testid="correctscore-widget"><div class="_card-header_hteoa_16"><div class="_card-title_hteoa_31">Wahrscheinlichkeit des exakten Ergebnisses<div class="_card-title-icon_hteoa_46"><div class="_tooltip-top_ypi30_63 _tooltip-container_ypi30_1" data-testid="correctscore-tooltip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 15 15" fill="none" class="info-icon"><path d="M6.99984 1.66669C3.7784 1.66669 1.1665 4.27953 1.1665 7.50002C1.1665 10.7224 3.7784 13.3334 6.99984 13.3334C10.2213 13.3334 12.8332 10.7224 12.8332 7.50002C12.8332 4.27953 10.2213 1.66669 6.99984 1.66669ZM6.99984 4.25405C7.54544 4.25405 7.98774 4.69635 7.98774 5.24196C7.98774 5.78756 7.54544 6.22986 6.99984 6.22986C6.45423 6.22986 6.01193 5.78756 6.01193 5.24196C6.01193 4.69635 6.45423 4.25405 6.99984 4.25405ZM8.31704 10.2285C8.31704 10.3844 8.19066 10.5108 8.03478 10.5108H5.96489C5.80901 10.5108 5.68263 10.3844 5.68263 10.2285V9.664C5.68263 9.50812 5.80901 9.38174 5.96489 9.38174H6.24715V7.87636H5.96489C5.80901 7.87636 5.68263 7.74998 5.68263 7.59411V7.02959C5.68263 6.87371 5.80901 6.74733 5.96489 6.74733H7.47027C7.62614 6.74733 7.75252 6.87371 7.75252 7.02959V9.38174H8.03478C8.19066 9.38174 8.31704 9.50812 8.31704 9.664V10.2285Z" fill="#6B7280"></path></svg></div></div></div></div><div class="_card-content_hteoa_54 mp-grid mp-grid--1-col"><div class="prediction-bars vertical"><div class="prediction-bar active"><div class="label">1-1</div><div class="percent">9.4%</div></div><div class="prediction-bar"><div class="label">1-2</div><div class="percent">9.3%</div></div><div class="prediction-bar"><div class="label">2-1</div><div class="percent">8%</div></div></div></div><div class="swv-odds-block" id="swv-odds-correctscore"><div class="_read-more-content_13lqy_1 _clamped_13lqy_12"><span>Richtiges Ergebnis: <b>Enges Remis am wahrscheinlichsten.</b> Mit 9,4% führt die 1:1-Punktlandung das Ranking der wahrscheinlichsten Ergebnisse knapp vor einem 1:2- und einem 2:1-Auswärtssieg an. Das Modell erwartet eine ausgeglichene Partie zwischen zwei Mannschaften, die beide zumindest einen Treffer erzielen dürften – ein zweistelliger Ausreißer ist auf diesem Niveau nicht zu erwarten.</span><div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div></div><button type="button" class="swv-compare-btn" data-target="swv-odds-reveal-correctscore" aria-expanded="false" onclick="swvToggleCompare(this)">Quoten vergleichen<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="swv-odds-reveal" id="swv-odds-reveal-correctscore" hidden><div class="swv-odds-market-title"><b>Richtiges Ergebnis: 1:1</b></div><div class="swv-bookie-rows"><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/22bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#074147"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/22Bet-logo.svg" alt="22bet"></span><span class="swv-bookie-row__odd">6.80</span><span class="swv-bookie-row__offer">100% bis 300€ Willkommensbonus</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row is-best" href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#0D1B2F"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg" alt="20bet"></span><span class="swv-bookie-row__odd"><span class="swv-bookie-row__best-icon" title="Beste Quote — automatisch berechnet aus allen gelisteten Quoten, nicht redaktionell ausgewählt"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="swv-bookie-row__odd-value">7.20</span></span><span class="swv-bookie-row__offer">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/rollino-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#00141C"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Rollino-logo.svg" alt="Rollino"></span><span class="swv-bookie-row__odd">6.50</span><span class="swv-bookie-row__offer">Bis zu 100€ Bonus für Neukunden</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a></div><div class="swv-odds-compare__footer">18+ &middot; BZgA.de &middot; Es gelten die AGB des Anbieters</div></div></div></div><div class="_card_hteoa_1 mp-btts-card" data-testid="btts-widget"><div class="_card-header_hteoa_16"><div class="_card-title_hteoa_31">Beide Teams treffen<div class="_card-title-icon_hteoa_46"><div class="_tooltip-top_ypi30_63 _tooltip-container_ypi30_1" data-testid="btts-tooltip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 15 15" fill="none" class="info-icon"><path d="M6.99984 1.66669C3.7784 1.66669 1.1665 4.27953 1.1665 7.50002C1.1665 10.7224 3.7784 13.3334 6.99984 13.3334C10.2213 13.3334 12.8332 10.7224 12.8332 7.50002C12.8332 4.27953 10.2213 1.66669 6.99984 1.66669ZM6.99984 4.25405C7.54544 4.25405 7.98774 4.69635 7.98774 5.24196C7.98774 5.78756 7.54544 6.22986 6.99984 6.22986C6.45423 6.22986 6.01193 5.78756 6.01193 5.24196C6.01193 4.69635 6.45423 4.25405 6.99984 4.25405ZM8.31704 10.2285C8.31704 10.3844 8.19066 10.5108 8.03478 10.5108H5.96489C5.80901 10.5108 5.68263 10.3844 5.68263 10.2285V9.664C5.68263 9.50812 5.80901 9.38174 5.96489 9.38174H6.24715V7.87636H5.96489C5.80901 7.87636 5.68263 7.74998 5.68263 7.59411V7.02959C5.68263 6.87371 5.80901 6.74733 5.96489 6.74733H7.47027C7.62614 6.74733 7.75252 6.87371 7.75252 7.02959V9.38174H8.03478C8.19066 9.38174 8.31704 9.50812 8.31704 9.664V10.2285Z" fill="#6B7280"></path></svg></div></div></div></div><div class="_card-content_hteoa_54 mp-grid mp-grid--1-col"><div class="prediction-bars horizontal"><div class="prediction-bar active" style="width: 60%;"><div class="label">Ja</div><div class="percent">60%</div></div><div class="prediction-bar" style="width: 40%;"><div class="label">Nein</div><div class="percent">40%</div></div></div></div><div class="swv-odds-block" id="swv-odds-btts"><div class="_read-more-content_13lqy_1 _clamped_13lqy_12"><span>Beide Teams treffen: <b>Klarer Trend zu Ja.</b> Mit 60% sehen wir ein Tor auf beiden Seiten als wahrscheinlichstes Szenario. Real Madrid tritt zuhause offensiv an, während Inter Milan als Favorit selten zu null spielt, wenn die Chancenverwertung nicht überdurchschnittlich ist. Beide Abwehrreihen zeigten in den vergangenen Wochen Schwächephasen, was für Tore auf beiden Seiten spricht.</span><div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div></div><button type="button" class="swv-compare-btn" data-target="swv-odds-reveal-btts" aria-expanded="false" onclick="swvToggleCompare(this)">Quoten vergleichen<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="swv-odds-reveal" id="swv-odds-reveal-btts" hidden><div class="swv-odds-market-title"><b>Beide Teams treffen: Ja</b></div><div class="swv-bookie-rows"><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/22bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#074147"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/22Bet-logo.svg" alt="22bet"></span><span class="swv-bookie-row__odd">1.61</span><span class="swv-bookie-row__offer">100% bis 300€ Willkommensbonus</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row is-best" href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#0D1B2F"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg" alt="20bet"></span><span class="swv-bookie-row__odd"><span class="swv-bookie-row__best-icon" title="Beste Quote — automatisch berechnet aus allen gelisteten Quoten, nicht redaktionell ausgewählt"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="swv-bookie-row__odd-value">1.63</span></span><span class="swv-bookie-row__offer">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/rollino-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#00141C"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Rollino-logo.svg" alt="Rollino"></span><span class="swv-bookie-row__odd">1.58</span><span class="swv-bookie-row__offer">Bis zu 100€ Bonus für Neukunden</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a></div><div class="swv-odds-compare__footer">18+ &middot; BZgA.de &middot; Es gelten die AGB des Anbieters</div></div></div></div><div class="_card_hteoa_1 mp-outcome-card" data-testid="goalsprob-widget"><div class="_card-header_hteoa_16"><div class="_card-title_hteoa_31">Wahrscheinlichkeit Anzahl der Tore<div class="_card-title-icon_hteoa_46"><div class="_tooltip-top_ypi30_63 _tooltip-container_ypi30_1" data-testid="goalsprob-tooltip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 15 15" fill="none" class="info-icon"><path d="M6.99984 1.66669C3.7784 1.66669 1.1665 4.27953 1.1665 7.50002C1.1665 10.7224 3.7784 13.3334 6.99984 13.3334C10.2213 13.3334 12.8332 10.7224 12.8332 7.50002C12.8332 4.27953 10.2213 1.66669 6.99984 1.66669ZM6.99984 4.25405C7.54544 4.25405 7.98774 4.69635 7.98774 5.24196C7.98774 5.78756 7.54544 6.22986 6.99984 6.22986C6.45423 6.22986 6.01193 5.78756 6.01193 5.24196C6.01193 4.69635 6.45423 4.25405 6.99984 4.25405ZM8.31704 10.2285C8.31704 10.3844 8.19066 10.5108 8.03478 10.5108H5.96489C5.80901 10.5108 5.68263 10.3844 5.68263 10.2285V9.664C5.68263 9.50812 5.80901 9.38174 5.96489 9.38174H6.24715V7.87636H5.96489C5.80901 7.87636 5.68263 7.74998 5.68263 7.59411V7.02959C5.68263 6.87371 5.80901 6.74733 5.96489 6.74733H7.47027C7.62614 6.74733 7.75252 6.87371 7.75252 7.02959V9.38174H8.03478C8.19066 9.38174 8.31704 9.50812 8.31704 9.664V10.2285Z" fill="#6B7280"></path></svg></div></div></div></div><div class="_card-content_hteoa_54 mp-grid mp-grid--1-col"><div><div class="horizontal-bar-chart"><div class="horizontal-bar-chart__container"><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--1" style="flex-basis: 80%;"></div><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--2" style="flex-basis: 20%;"></div></div><div class="horizontal-bar-chart__top-labels"><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Über 1.5</div><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Unter 1.5</div></div><div class="horizontal-bar-chart__percentage-labels"><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>80%</span></div><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>20%</span></div></div></div><div class="horizontal-bar-chart"><div class="horizontal-bar-chart__container"><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--1" style="flex-basis: 59%;"></div><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--2" style="flex-basis: 41%;"></div></div><div class="horizontal-bar-chart__top-labels"><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Über 2.5</div><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Unter 2.5</div></div><div class="horizontal-bar-chart__percentage-labels"><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>59%</span></div><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>41%</span></div></div></div><div class="horizontal-bar-chart"><div class="horizontal-bar-chart__container"><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--1" style="flex-basis: 36%;"></div><div class="horizontal-bar-chart__segment horizontal-bar-chart__segment--2" style="flex-basis: 64%;"></div></div><div class="horizontal-bar-chart__top-labels"><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Über 3.5</div><div class="horizontal-bar-chart__top-label" style="flex-basis: 50%;">Unter 3.5</div></div><div class="horizontal-bar-chart__percentage-labels"><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>36%</span></div><div class="horizontal-bar-chart__percentage-label" style="flex-basis: 50%;"><span>64%</span></div></div></div></div></div><div class="swv-odds-block" id="swv-odds-goals"><div class="_read-more-content_13lqy_1 _clamped_13lqy_12"><span>Anzahl der Tore: <b>Über 2.5 Tore leicht favorisiert.</b> Die Formel sieht mit 59% eine knappe Tendenz zu einem torreichen Spiel. Bei Über 1.5 Toren liegt die Wahrscheinlichkeit sogar bei 80%, während die Marke von 3.5 Toren mit 36% schon deutlich unwahrscheinlicher wird. Ein Spiel mit zwei bis drei Treffern erscheint als realistischstes Szenario, ein offener Schlagabtausch ist aber nicht ausgeschlossen.</span><div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div></div><button type="button" class="swv-compare-btn" data-target="swv-odds-reveal-goals" aria-expanded="false" onclick="swvToggleCompare(this)">Quoten vergleichen<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="swv-odds-reveal" id="swv-odds-reveal-goals" hidden><div class="swv-odds-market-title"><b>Über 2.5 Tore</b></div><div class="swv-bookie-rows"><a class="swv-bookie-row is-best" href="https://www.sportwettenvergleich.net/goto/22bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#074147"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/22Bet-logo.svg" alt="22bet"></span><span class="swv-bookie-row__odd"><span class="swv-bookie-row__best-icon" title="Beste Quote — automatisch berechnet aus allen gelisteten Quoten, nicht redaktionell ausgewählt"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="swv-bookie-row__odd-value">1.55</span></span><span class="swv-bookie-row__offer">100% bis 300€ Willkommensbonus</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/20bet-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#0D1B2F"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/20bet-logo.svg" alt="20bet"></span><span class="swv-bookie-row__odd">1.53</span><span class="swv-bookie-row__offer">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a><a class="swv-bookie-row" href="https://www.sportwettenvergleich.net/goto/rollino-kickform/" target="_blank" rel="nofollow sponsored noopener noreferrer"><span class="swv-bookie-row__logo" style="background:#00141C"><img src="assets/real-madrid-vs-inter-milan-Y17vo/img/Rollino-logo.svg" alt="Rollino"></span><span class="swv-bookie-row__odd">1.50</span><span class="swv-bookie-row__offer">Bis zu 100€ Bonus für Neukunden</span><span class="swv-bookie-row__cta">Jetzt wetten</span></a></div><div class="swv-odds-compare__footer">18+ &middot; BZgA.de &middot; Es gelten die AGB des Anbieters</div></div></div></div></div></div></div>
+
+<p class="paragraph-block m-0 has-text-align-left container mx-auto intro">Am 8. September 2026 um 21:00 Uhr findet im Santiago Bernab&eacute;u Stadium das Spiel Real Madrid gegen Inter Milan statt. Wir haben mit unserer Fu&szlig;ballformel die Partie f&uuml;r euch im Vorfeld analysiert und Wahrscheinlichkeiten f&uuml;r Sieg, Unentschieden und Niederlage berechnet. Unsere Vorhersage und Statistiken zeigen euch zudem die drei wahrscheinlichsten Ergebnisse. Damit ihr erfolgreicher tippen oder wetten k&ouml;nnt, bieten wir euch zudem Statistiken der letzten Spiele, Quoten der Wettanbieter, einen Form &ndash; Check der beiden Mannschaften sowie aktuelle Nachrichten zu den jeweiligen Teams an. Mit der wissenschaftlich fundierten KickForm Prognose k&ouml;nnt ihr das Spiel Real Madrid gegen Inter Milan besser tippen.</p>
+
+</div>
+
+<h3 id="sportwetten-bonus" class="d-flex justify-content-between w-100">
+    Sportwetten Bonus
+            <span class="heading-cta d-flex justify-content-end align-items-center col-5 col-lg-3 fs-16"><a href="/sportwetten-bonus-vergleich/">Alle Angebote</a></span>
+    </h3>
+
+<div class="promo-codes-instance promo-codes-instance--promo_codes" data-template="promo_codes" data-offer="kickform">
+        <div class="promo-codes__filter-container">
+        <div class="px-4 pb-4">
+            <div class="filters-buttons promo-codes__filters-buttons pb-4 pt-4" data-testid="promo-codes-filters">
+  <button data-type="new" class="promo-codes-filter-type bg-gray-200 btn btn-tab text-nowrap me-2">
+                    Neue
+                                                        </button>
+                                    <button data-type="1" class="promo-codes-filter-type bg-gray-200 btn btn-tab text-nowrap me-2">Willkommensbonus</button>
+                                    <button data-type="2" class="promo-codes-filter-type bg-gray-200 btn btn-tab text-nowrap me-2">Sport</button>
+</div>
+        </div>
+      </div>
+        <ul data-testid="promo-codes-cards-container" class="promo-codes-card-container p-0 m-0 list-unstyled row flex-wrap justify-content-center d-flex">
+<li data-type-primary="1" data-type-secondary="2" data-badge="exclusive" class="promo-codes-card free_bets_hub d-flex flex-column position-relative px-0 px-sm-3 px-lg-down-0 col-md-6 col-lg-4 has-badge" data-testid="promo-code-card">
+    <div class="d-flex flex-column overflow-hidden border-gray-300 position-relative bg-white free-bets-page promo-code-card-container free-bets-page-card-container br-10px box-shadow-1">
+        <div>
+            <a data-testid="promo-code-logo" rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/ivibet-exclusive-offer-sports-grdt-1/" aria-label="Ivibet">
+                <div class="background-center position-relative border-gray-300 logo__link_promo promo-logo-rounded-top" style="height: 50px; background-color: #23333B; box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1);">
+                    <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/ivibet-logo-23333B.svg" alt="Ivibet Logo" style="width:100%; height:100%; object-fit:contain;">
+                </div>
+            </a>
+            <div class="position-absolute top-0 start-0 bg-white text-gray-800 text-center fw-bold fs-18 bbrr-1 border-top-0 border-start-0 border-gray-300" style=" width: 30px;  height: 30px; line-height: 30px; border-bottom-right-radius: 8px;">1</div>
+        </div>
+        <div class="flex-grow-1 d-flex flex-column p-5">
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-2 promo-page-badge-container">
+                <div class="badge free-bets-hub-badge free-bets-page">
+                    <span class="px-2 fw-semibold btlr-2 btrr-2 bg-yellow-stars d-flex align-items-center text-uppercase fs-12">SWV Exklusiv</span>
+                    <span class="badge__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0742 2.07358H3.92577C3.83317 2.07358 3.7452 2.11988 3.69428 2.19858L1.37938 5.60611C1.31225 5.70796 1.31919 5.84223 1.39559 5.93482L7.7847 13.824C7.89581 13.9606 8.10415 13.9606 8.21527 13.824L14.6044 5.93482C14.6808 5.83991 14.6877 5.70796 14.6206 5.60611L12.308 2.19858C12.2548 2.11988 12.1691 2.07358 12.0742 2.07358ZM11.6274 3.18473L13.0927 5.40703H11.5094L10.3126 3.18473H11.6274V3.18473ZM6.94902 3.18473H9.04863L10.2454 5.40703H5.75453L6.94902 3.18473ZM4.37254 3.18473H5.6874L4.4906 5.40703H2.90721L4.37254 3.18473ZM3.37714 6.51818H4.56699L6.14806 10.222L3.37714 6.51818V6.51818ZM5.75916 6.51818H10.2408L7.99998 12.1503L5.75916 6.51818V6.51818ZM9.8519 10.222L11.4307 6.51818H12.6205L9.8519 10.222Z" fill="#0F1D3E"></path></svg></span>
+                </div>
+                <div class="d-flex align-items-center font-error" style="margin-bottom: 10px;"><span class="font-red fs-10"><span class="text-uppercase fw-normal">Ablauf</span>: Kein Ablauf</span></div>
+            </div>
+            <div class="d-flex align-items-center promo-code-title mb-3"><span id="card-name" class="lh-115 fw-bold fs-16 h-truncate">100% bis 250&euro; + 5&euro; Gratiswetten</span></div>
+            <div class="promo-code-action-container d-flex mb-3 gap-3">
+                <div class="promo-code-no-code-container p-3 rounded-2 d-flex justify-content-center align-items-center text-center">
+                    <div class="promo-code-no-code-text flex-grow-1 text-center d-flex flex-column justify-content-center"><div>Kein Code erforderlich</div></div>
+                </div>
+                <a rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/ivibet-exclusive-offer-sports-grdt-1/" class="promo-code-cta-button free-bets-page btn btn-lg d-flex fw-bolder btn-cta btn-cta-b fs-sm-16 fst-italic toplist-codes-c" aria-label="Bonus holen Ivibet" data-testid="promo-code-cta-button"><span class="w-100">BONUS HOLEN</span></a>
+            </div>
+        </div>
+    </div>
+</li>
+<li data-type-primary="1" data-type-secondary="2" data-badge="exclusive" class="promo-codes-card free_bets_hub d-flex flex-column position-relative px-0 px-sm-3 px-lg-down-0 col-md-6 col-lg-4 has-badge" data-testid="promo-code-card">
+    <div class="d-flex flex-column overflow-hidden border-gray-300 position-relative bg-white free-bets-page promo-code-card-container free-bets-page-card-container br-10px box-shadow-1">
+        <div>
+            <a data-testid="promo-code-logo" rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/20bet-exclusive-offer-grdt/" aria-label="20Bet">
+                <div class="background-center position-relative border-gray-300 logo__link_promo promo-logo-rounded-top" style="height: 50px; background-color: #091D36; box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1);">
+                    <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/20_Bet-logo-091D36.svg" alt="20Bet Logo" style="width:100%; height:100%; object-fit:contain;">
+                </div>
+            </a>
+            <div class="position-absolute top-0 start-0 bg-white text-gray-800 text-center fw-bold fs-18 bbrr-1 border-top-0 border-start-0 border-gray-300" style=" width: 30px;  height: 30px; line-height: 30px; border-bottom-right-radius: 8px;">2</div>
+        </div>
+        <div class="flex-grow-1 d-flex flex-column p-5">
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-2 promo-page-badge-container">
+                <div class="badge free-bets-hub-badge free-bets-page">
+                    <span class="px-2 fw-semibold btlr-2 btrr-2 bg-yellow-stars d-flex align-items-center text-uppercase fs-12">SWV Exklusiv</span>
+                    <span class="badge__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0742 2.07358H3.92577C3.83317 2.07358 3.7452 2.11988 3.69428 2.19858L1.37938 5.60611C1.31225 5.70796 1.31919 5.84223 1.39559 5.93482L7.7847 13.824C7.89581 13.9606 8.10415 13.9606 8.21527 13.824L14.6044 5.93482C14.6808 5.83991 14.6877 5.70796 14.6206 5.60611L12.308 2.19858C12.2548 2.11988 12.1691 2.07358 12.0742 2.07358ZM11.6274 3.18473L13.0927 5.40703H11.5094L10.3126 3.18473H11.6274V3.18473ZM6.94902 3.18473H9.04863L10.2454 5.40703H5.75453L6.94902 3.18473ZM4.37254 3.18473H5.6874L4.4906 5.40703H2.90721L4.37254 3.18473ZM3.37714 6.51818H4.56699L6.14806 10.222L3.37714 6.51818V6.51818ZM5.75916 6.51818H10.2408L7.99998 12.1503L5.75916 6.51818V6.51818ZM9.8519 10.222L11.4307 6.51818H12.6205L9.8519 10.222Z" fill="#0F1D3E"></path></svg></span>
+                </div>
+                <div class="d-flex align-items-center font-error" style="margin-bottom: 10px;"><span class="font-red fs-10"><span class="text-uppercase fw-normal">Ablauf</span>: 30/9/26 &ndash; 00:00</span></div>
+            </div>
+            <div class="d-flex align-items-center promo-code-title mb-3"><span id="card-name" class="lh-115 fw-bold fs-16 h-truncate">Willkommenspaket: Max. 600&euro; + max. 85&euro; als Gratiswette</span></div>
+            <div class="promo-code-action-container d-flex mb-3 gap-3">
+                <div class="promo-code-no-code-container p-3 rounded-2 d-flex justify-content-center align-items-center text-center">
+                    <div class="promo-code-no-code-text flex-grow-1 text-center d-flex flex-column justify-content-center"><div>Kein Code erforderlich</div></div>
+                </div>
+                <a rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/20bet-exclusive-offer-grdt/" class="promo-code-cta-button free-bets-page btn btn-lg d-flex fw-bolder btn-cta btn-cta-b fs-sm-16 fst-italic toplist-codes-c" aria-label="Bonus holen 20Bet" data-testid="promo-code-cta-button"><span class="w-100">BONUS HOLEN</span></a>
+            </div>
+        </div>
+    </div>
+</li>
+<li data-type-primary="1" data-type-secondary="2" data-badge="sports" class="promo-codes-card free_bets_hub d-flex flex-column position-relative px-0 px-sm-3 px-lg-down-0 col-md-6 col-lg-4 has-badge" data-testid="promo-code-card">
+    <div class="d-flex flex-column overflow-hidden border-gray-300 position-relative bg-white free-bets-page promo-code-card-container free-bets-page-card-container br-10px box-shadow-1">
+        <div>
+            <a data-testid="promo-code-logo" rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/betlabel-sports-grdt/" aria-label="Betlabel">
+                <div class="background-center position-relative border-gray-300 logo__link_promo promo-logo-rounded-top" style="height: 50px; background-color: #121317; box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1);">
+                    <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Betlabel-logo-121317.svg" alt="Betlabel Logo" style="width:100%; height:100%; object-fit:contain;">
+                </div>
+            </a>
+            <div class="position-absolute top-0 start-0 bg-white text-gray-800 text-center fw-bold fs-18 bbrr-1 border-top-0 border-start-0 border-gray-300" style=" width: 30px;  height: 30px; line-height: 30px; border-bottom-right-radius: 8px;">3</div>
+        </div>
+        <div class="flex-grow-1 d-flex flex-column p-5">
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-2 promo-page-badge-container">
+                <div class="badge free-bets-hub-badge free-bets-page bg-white no-bg-badge">
+                    <span class="px-2 fw-semibold btlr-2 btrr-2 bg-yellow-stars d-flex align-items-center text-uppercase fs-12">Sports</span>
+                    <span class="badge__icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8364 12.069L13.7217 12.182C13.7217 12.182 13.5695 12.0017 13.306 11.6898C13.2922 11.7038 13.2794 11.7185 13.2654 11.7325C12.7571 12.2333 12.1595 12.5987 11.5281 12.8666C12.0373 13.2845 12.346 13.5373 12.346 13.5373L12.2313 13.6502C12.0415 13.8372 12.0415 14.1408 12.2313 14.3279C12.4212 14.5149 12.7293 14.5149 12.9192 14.3279L14.5242 12.7467C14.7141 12.5597 14.7141 12.2561 14.5242 12.069C14.3344 11.882 14.0262 11.882 13.8364 12.069Z" fill="#0F1D3E"></path><path d="M6.84297 5.85732C5.45002 5.85732 4.32076 4.74486 4.32076 3.37263C4.32076 2.80703 4.51474 2.28727 4.83804 1.86962C3.98691 1.21163 2.47152 1.1285 1.79855 1.79146C1.07788 2.50141 1.22532 4.16321 2.02784 4.9538C2.36903 5.28991 4.28499 6.89163 6.37499 8.62211C6.65083 7.78748 7.08465 6.97001 7.75762 6.30683C7.93715 6.12996 8.12815 5.97094 8.32741 5.82592C8.24418 5.72857 8.16209 5.63234 8.08 5.53657C7.71451 5.73986 7.29284 5.85732 6.84297 5.85732Z" fill="black"></path><path d="M14.5609 5.0305C14.5609 5.0305 10.3184 4.4231 8.08207 6.62612C5.84578 8.82914 6.46235 13.0086 6.46235 13.0086C6.46235 13.0086 10.7049 13.616 12.9412 11.413C15.1777 9.20997 14.5609 5.0305 14.5609 5.0305Z" fill="black"></path></svg></span>
+                </div>
+                <div class="d-flex align-items-center font-error" style="margin-bottom: 10px;"><span class="font-red fs-10"><span class="text-uppercase fw-normal">Ablauf</span>: Kein Ablauf</span></div>
+            </div>
+            <div class="d-flex align-items-center promo-code-title mb-3"><span id="card-name" class="lh-115 fw-bold fs-16 h-truncate">Ersteinzahlungsbonus: 100% bis 100&euro;</span></div>
+            <div class="promo-code-action-container d-flex mb-3 gap-3">
+                <div class="promo-code-no-code-container p-3 rounded-2 d-flex justify-content-center align-items-center text-center">
+                    <div class="promo-code-no-code-text flex-grow-1 text-center d-flex flex-column justify-content-center"><div>Kein Code erforderlich</div></div>
+                </div>
+                <a rel="nofollow sponsored noopener noreferrer" target="_blank" href="https://www.sportwettenvergleich.net/goto/betlabel-sports-grdt/" class="promo-code-cta-button free-bets-page btn btn-lg d-flex fw-bolder btn-cta btn-cta-b fs-sm-16 fst-italic toplist-codes-c" aria-label="Bonus holen Betlabel" data-testid="promo-code-cta-button"><span class="w-100">BONUS HOLEN</span></a>
+            </div>
+        </div>
+    </div>
+</li>
+
+        </ul>
+    </div>
+</div>
+
+</div>
+
+      <div class="wis-sidebar-right-col">
+              <aside class="wis-sidebar wis-sidebar-right">
+          
+<div class="wp-block-wis-card wp-block-wis-top-bookies" data-testid="grid-top5-bookies-block">
+    <div class="wp-block-wis-card__title" id="top-bookies-title-6a9e5d24f33d7">Top Anbieter</div>
+
+    <ul class="wp-block-wis-card__list wp-block-wis-card__list--numbered" aria-labelledby="top-bookies-title-6a9e5d24f33d7">
+                                <li class="wp-block-wis-card__list-item" data-testid="grid-top5-bookies-block-link">
+                                <div class="wp-block-wis-top-bookies__col-1">
+                                            <a href="https://www.sportwettenvergleich.net/goto/betlabel-sports-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-top-bookies__logo" style="background-color:#121317;" target="_blank" rel="nofollow sponsored noopener noreferrer">
+                            <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Betlabel-logo-121317.svg" alt="Betlabel-logo-121317" width="72" height="36" loading="lazy">
+                        </a>
+                        <a class="wp-block-wis-top-bookies__see-review" href="https://www.sportwettenvergleich.net/betlabel-erfahrungen/">Betlabel Bewertung</a>
+                                    </div>
+                <div class="wp-block-wis-top-bookies__col-2">
+                    <div class="wp-block-wis-top-bookies__bonus-text">
+                        <span class="news-text-truncate">100% bis 100€</span>
+                    </div>
+                    <a href="https://www.sportwettenvergleich.net/goto/betlabel-sports-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-card__cta btn btn-cta btn-cta-b external-link" target="_blank" rel="nofollow sponsored noopener noreferrer">HOLEN</a>
+                </div>
+                            </li>
+                                <li class="wp-block-wis-card__list-item" data-testid="grid-top5-bookies-block-link">
+                                <div class="wp-block-wis-top-bookies__col-1">
+                                            <a href="https://www.sportwettenvergleich.net/goto/20bet-exclusive-offer-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-top-bookies__logo" style="background-color:#091d36;" target="_blank" rel="nofollow sponsored noopener noreferrer">
+                            <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/20_Bet-logo-091D36.svg" alt="20Bet logo" width="72" height="36" loading="lazy">
+                        </a>
+                        <a class="wp-block-wis-top-bookies__see-review" href="https://www.sportwettenvergleich.net/20bet-sportwetten-erfahrungen/">20Bet Bewertung</a>
+                                    </div>
+                <div class="wp-block-wis-top-bookies__col-2">
+                    <div class="wp-block-wis-top-bookies__bonus-text">
+                        <span class="news-text-truncate">Willkommenspaket: Max. 600€ + max. 85€ als Gratiswette</span>
+                    </div>
+                    <a href="https://www.sportwettenvergleich.net/goto/20bet-exclusive-offer-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-card__cta btn btn-cta btn-cta-b external-link" target="_blank" rel="nofollow sponsored noopener noreferrer">HOLEN</a>
+                </div>
+                            </li>
+                                <li class="wp-block-wis-card__list-item" data-testid="grid-top5-bookies-block-link">
+                                <div class="wp-block-wis-top-bookies__col-1">
+                                            <a href="https://www.sportwettenvergleich.net/goto/ivibet-exclusive-offer-sports-grdt-1/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-top-bookies__logo" style="background-color:#23333b;" target="_blank" rel="nofollow sponsored noopener noreferrer">
+                            <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/ivibet-logo-23333B.svg" alt="" width="72" height="36" loading="lazy">
+                        </a>
+                        <a class="wp-block-wis-top-bookies__see-review" href="https://www.sportwettenvergleich.net/ivibet-sportwetten-erfahrungen/">Ivibet Bewertung</a>
+                                    </div>
+                <div class="wp-block-wis-top-bookies__col-2">
+                    <div class="wp-block-wis-top-bookies__bonus-text">
+                        <span class="news-text-truncate">100% bis 250€ + 5€ Gratiswetten</span>
+                    </div>
+                    <a href="https://www.sportwettenvergleich.net/goto/ivibet-exclusive-offer-sports-grdt-1/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-card__cta btn btn-cta btn-cta-b external-link" target="_blank" rel="nofollow sponsored noopener noreferrer">HOLEN</a>
+                </div>
+                            </li>
+                                <li class="wp-block-wis-card__list-item" data-testid="grid-top5-bookies-block-link">
+                                <div class="wp-block-wis-top-bookies__col-1">
+                                            <a href="https://www.sportwettenvergleich.net/goto/n1bet-exclusive-offer-sports-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-top-bookies__logo" style="background-color:#000001;" target="_blank" rel="nofollow sponsored noopener noreferrer">
+                            <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/N1Bet-logo-212121.svg" alt="n1bet logo" width="72" height="36" loading="lazy">
+                        </a>
+                        <a class="wp-block-wis-top-bookies__see-review" href="https://www.sportwettenvergleich.net/n1bet-sportwetten-erfahrungen/">N1 BET Bewertung</a>
+                                    </div>
+                <div class="wp-block-wis-top-bookies__col-2">
+                    <div class="wp-block-wis-top-bookies__bonus-text">
+                        <span class="news-text-truncate">100% bis 1000€ Code: SWV100</span>
+                    </div>
+                    <a href="https://www.sportwettenvergleich.net/goto/n1bet-exclusive-offer-sports-grdt/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-card__cta btn btn-cta btn-cta-b external-link" target="_blank" rel="nofollow sponsored noopener noreferrer">HOLEN</a>
+                </div>
+                            </li>
+                                <li class="wp-block-wis-card__list-item" data-testid="grid-top5-bookies-block-link">
+                                <div class="wp-block-wis-top-bookies__col-1">
+                                            <a href="https://www.sportwettenvergleich.net/goto/mystake-welcome-offer-sports-grdt-1/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-top-bookies__logo" style="background-color:#1b1c21;" target="_blank" rel="nofollow sponsored noopener noreferrer">
+                            <img decoding="async" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Mystake-logo-1B1C21.svg" alt="mystake logo" width="72" height="36" loading="lazy">
+                        </a>
+                        <a class="wp-block-wis-top-bookies__see-review" href="https://www.sportwettenvergleich.net/mystake-sportwetten-erfahrungen/">Mystake Bewertung</a>
+                                    </div>
+                <div class="wp-block-wis-top-bookies__col-2">
+                    <div class="wp-block-wis-top-bookies__bonus-text">
+                        <span class="news-text-truncate">120% bis 600€</span>
+                    </div>
+                    <a href="https://www.sportwettenvergleich.net/goto/mystake-welcome-offer-sports-grdt-1/?referrer=https%3A%2F%2Fwww.sportwettenvergleich.net%2Fkickform%2Fchampions-league%2Freal-madrid-vs-inter-milan%2FY17vo%2F&amp;ga_id=1473390314.1788765436&amp;session_id=1788765436" class="wp-block-wis-card__cta btn btn-cta btn-cta-b external-link" target="_blank" rel="nofollow sponsored noopener noreferrer">HOLEN</a>
+                </div>
+                            </li>
+            </ul>
+
+            <a href="/wettanbieter-test/" class="wp-block-wis-card__see-all" data-testid="grid-top5-bookies-block-link-see-all">
+            Alle Wettanbieter            <span class="wis-icon-chevron"></span>
+        </a>
+    </div>
+
+        </aside>
+          </div>
+  </main>
+<!-- Newsletter Signup Banner -->
+<div class="container">
+    <div id="newsletterBanner" class="newsletter-banner ab-test" data-testid="newsletter-banner-container">
+        <div class="banner-header mb-3 justify-content-between">
+            <div class="banner-title fw-semibold flex-grow-1 pe-3">Anmelden und gewinnen!</div>
+        </div>
+
+        <div class="banner-description mb-3 fs-14">Erhalte Experten-Tipps, Bonus-Deals &amp; Wett-News – melde Dich jetzt an und sichere Dir einen exklusiven 100 % bis 200 € Willkommensbonus.</div>
+
+        <div id="successMessage" class="success-message">
+            <div class="success-header justify-content-between">
+                <div class="success-title fw-semibold flex-grow-1 pe-3 mb-1">Gute Entscheidung!</div>
+            </div>
+            <div class="success-subtitle fs-14 mb-3 fw-bold">
+                Jetzt musst du nur noch kurz deine E-Mail Adresse bestätigen.
+            </div>
+            <div class="success-text fs-14">
+                Danach erhältst du 1x pro Woche exklusive Sportwettenvergleich-News. 100% kostenlos, kein Spam. Und natürlich jederzeit abbestellbar.
+            </div>
+        </div>
+
+        <form id="signupForm" class="signup-form flex-column">
+            <!-- Honeypot field -->
+            <label for="honeypot-website" class="visually-hidden">Lassen Sie dieses Feld leer</label>
+            <input type="text" id="honeypot-website" name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-label="Lassen Sie dieses Feld leer">
+
+            <div class="d-flex gap-3 mt-3">
+
+                <input type="email" id="emailInput" name="email" class="form-input bg-white text-dark w-100" placeholder="E-Mail Adresse" data-placeholder-en="E-Mail address" data-placeholder-de="E-Mail Adresse" maxlength="254" required="">
+                <button type="submit" class="submit-btn btn btn-cta fs-14" data-testid="newsletter-submit-button">ABONNIEREN</button>
+
+            </div>
+
+            <div id="emailError" class="error-message"></div>
+
+            <div id="privacyConsent" class="privacy-consent mt-3">
+                <div class="checkbox-wrapper d-flex align-items-start gap-2">
+                    <input type="checkbox" id="privacyCheckbox" class="privacy-checkbox" required="">
+                    <label for="privacyCheckbox" class="privacy-text fs-10">
+                        <span>
+                            Ich stimme dem Erhalt des Newsletters zu und erkenne an, dass meine personenbezogenen Daten gemäß der
+                        </span>
+                        <a href="https://www.sportwettenvergleich.net/datenschutz/" target="_blank">Datenschutzrichtlinie</a>.
+                        <span>
+                            zu diesem Zweck verarbeitet werden. Ich kann meine Einwilligung jederzeit widerrufen.
+                        </span>
+                    </label>
+                </div>
+                <div id="privacyError" class="error-message"></div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="footerArrow position-fixed mw-60 w-60 d-flex d-none justify-content-center align-items-center" id="footerArrow">
+  <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/top-to-bottom.1da6ce.svg" alt="top to bottom" width="48" height="48" loading="lazy">
+</div>
+
+<footer class="footer overflow-hidden bg-dark-blue-swv-900 text-white">
+    <div class="container py-4">
+    <div class="row">
+      <div class="footer__column-first">
+        <div class="row">
+          <div class="col-first">
+                                    <span class="footer__heading fw-bold text-white text-uppercase p-0 d-block mb-5">
+              SCHNELLEINSTIEG
+            </span>
+                        <nav>
+              <ul class="footer__menu p-0">
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/wettanbieter-test/" class="footer__menu-item-link text-white"> Wettanbieter Übersicht</a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/sportwetten-bonus-vergleich//" class="footer__menu-item-link text-white"> Wettbonus Vergleich</a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/sportwetten-app-ratgeber/" class="footer__menu-item-link text-white"> Sportwetten Apps Übersicht</a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/wettarten-und-wettmaerkte/" class="footer__menu-item-link text-white"> Wettarten &amp; Wettmärkte</a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/sportwetten-strategie/" class="footer__menu-item-link text-white"> Sportwetten Strategien</a>
+                    </li>
+                                </ul>
+            </nav>
+            <div class="mt-50" data-testid="footer-socials-container">
+                            <span class="footer__heading fw-bold text-white text-uppercase p-0 mt-lg-60 h5 d-block">
+                FOLGE UNS AUF
+              </span>
+
+                              <ul class="footer__socials d-flex flex-wrap list-unstyled pe-0 ms-0" data-testid="footer-socials-items">
+                                          <li class="footer__socials-item">
+                        <a href="https://x.com/swvsports" class="d-flex align-items-center text-decoration-none" target="_blank" rel="noopener noreferrer">
+                          <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy">
+                        </a>
+                      </li>
+                                          <li class="footer__socials-item">
+                        <a href="https://www.instagram.com/swv.sports/#" class="d-flex align-items-center text-decoration-none" target="_blank" rel="noopener noreferrer">
+                          <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/Insta.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy">
+                        </a>
+                      </li>
+                                          <li class="footer__socials-item">
+                        <a href="https://www.youtube.com/@swv.sports" class="d-flex align-items-center text-decoration-none" target="_blank" rel="noopener noreferrer">
+                          <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-1.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy">
+                        </a>
+                      </li>
+                                          <li class="footer__socials-item">
+                        <a href="https://www.tiktok.com/@swv.sports" class="d-flex align-items-center text-decoration-none" target="_blank" rel="noopener noreferrer">
+                          <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-2.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy">
+                        </a>
+                      </li>
+                                          <li class="footer__socials-item">
+                        <a href="https://www.facebook.com/profile.php?id=61579360421464" class="d-flex align-items-center text-decoration-none" target="_blank" rel="noopener noreferrer">
+                          <img width="70" height="70" src="assets/real-madrid-vs-inter-milan-Y17vo/img/socials-3.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy">
+                        </a>
+                      </li>
+                                    </ul>
+                          </div>
+
+          </div>
+          <div class="col-second">
+                                      <span class="footer__heading fw-bold text-white text-uppercase p-0 d-block mb-5">
+                WEITERE INFORMATIONEN
+              </span>
+                        <nav>
+              <ul class="footer__menu p-0">
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/bewertungskriterien-der-redaktion/" class="footer__menu-item-link text-white"> Sportwetten Bewertung </a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/datenschutz/" class="footer__menu-item-link text-white"> Datenschutzrichtlinie </a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/impressum/" class="footer__menu-item-link text-white"> Impressum </a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/ueber-uns/" class="footer__menu-item-link text-white"> Über uns </a>
+                    </li>
+                                      <li class="footer__menu-item">
+                      <a href="https://www.sportwettenvergleich.net/kontakt/" class="footer__menu-item-link text-white"> Kontakt </a>
+                    </li>
+                                </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="footer__column-second">
+        <div class="row">
+          <div class="col-first">
+                                      <span class="footer__heading fw-bold text-white text-uppercase p-0 d-block mb-5">
+                VERANTWORTUNGSBEWUSST SPIELEN
+              </span>
+              <div class="footer__text">
+              <p>Sportwettenvergleich.net unterstützt den verantwortungsvollen Umgang mit Glücksspiel. Glücksspiel kann süchtig machen – Hilfe findest du auf <strong><a href="https://www.bzga.de/" target="_blank" rel="nofollow noreferrer noopener">BZgA: Startseite</a></strong>. Darüber hinaus weisen wir ausdrücklich darauf hin, dass Glücksspiel für Personen unter 18 Jahren gesetzlich verboten ist.</p>
+
+              </div>
+              <div class="footer__info">
+                <a href="https://www.bzga.de/" target="_blank" rel="nofollow noopener">
+                 <img width="212" height="60" src="assets/real-madrid-vs-inter-milan-Y17vo/img/SWV_Footer-Safer-Gambling.svg" class="attachment-258x50 size-258x50" alt="Verantwortungsbewusstes Spielen" decoding="async" loading="lazy">
+                </a>
+              </div>
+          </div>
+          <div class="col-second">
+            <div class="col-lg-12 col-md-9">
+                                    </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div></footer>
+<div class="bg-black footer-bottom">
+  <div class="container d-flex justify-content-center justify-content-lg-start">
+    <div class="text-center text-lg-start footer-bottom__content">
+      <a class="d-flex" href="https://www.sportwettenvergleich.net/">
+        <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/SWV-logo.a42aa6.svg" alt="Sportwettenvergleich.net" width="100" height="39" loading="lazy">
+      </a>
+      <span class="footer-copy">© 2006-2026 Sportwettenvergleich.net</span>
+    </div>
+  </div>
+</div>
+<div class="hottest-bookie   world-cup-grana-banner" data-banner-config="{&quot;trigger_type&quot;:&quot;delay&quot;,&quot;delay_seconds&quot;:5,&quot;display_frequency&quot;:&quot;session&quot;}">
+  <div style="background-color: #241b50" class="hottest-bookie-container d-flex align-items-center gap-3" data-testid="hottest-bookie-banner">
+    <div class="d-flex align-items-center gap-3 w-100">
+      <a data-testid="hottest-bookie-banner-logo" class="flex-shrink-0" href="https://www.sportwettenvergleich.net/goto/granawin-sb/" rel="nofollow noreferrer noopener sponsored" target="_blank">
+        <figure class="d-flex align-items-center justify-content-center rounded-3 p-2 m-0 _vwo_coal_1765363470084 vwo_loaded vwo_loaded_209_2">
+                            <div class="hottest-bookie__logo flex-shrink-0" role="img" width="89px" height="42px" aria-hidden="true" style="width:80px;height:42px;background-image:url('assets/real-madrid-vs-inter-milan-Y17vo/img/granawin-new.png') !important;background-size:contain;background-repeat:no-repeat;background-position:center;"></div>
+                    </figure>
+      </a>
+      <div class="hottest-bookie-bonus-text flex-grow-1">
+        <span class="text-white"><span style="color:#f6d679;font-size:14px;">WM26 SWV Exklusiv: </span>100% Einzahlungsbonus bis 200 €</span>
+      </div>
+    </div>
+    <div class="hottest-bookie-code-cta d-flex align-items-center gap-3">
+                  <a data-testid="hottest-bookie-banner-cta" href="https://www.sportwettenvergleich.net/goto/granawin-sb/" class="btn btn-cta bonus-button banner-cta _vwo_coal_1765363470084 vwo_loaded vwo_loaded_209_1" rel="nofollow noreferrer noopener sponsored" target="_blank">
+        Bonus holen
+      </a>
+    </div>
+    <div class="hottest-bookie-close-btn d-flex align-items-center justify-content-center" role="button" tabindex="0" aria-label="Banner schließen">
+      <img src="assets/real-madrid-vs-inter-milan-Y17vo/img/close-icon.6d7df5.svg" alt="close icon" width="20" height="20">
+    </div>
+  </div>
+</div>
+</div>
+<script id="swv-odds-comparison-script">
+function swvToggleCompare(btn){
+  var target = document.getElementById(btn.getAttribute("data-target"));
+  var expanded = btn.getAttribute("aria-expanded") === "true";
+  btn.setAttribute("aria-expanded", expanded ? "false" : "true");
+  target.hidden = expanded;
+  btn.firstChild.textContent = expanded ? "Quoten vergleichen" : "Quoten ausblenden";
+}
+/* Same coupling as the TPP version: Read More is the "expand everything" action —
+   opening the rationale also opens the odds panel beneath it. Show less mirrors
+   that and resets the card fully. Compare Odds on its own stays independent in
+   both directions: it never touches the rationale.
+
+   The DOM swap below matches the REAL live component exactly (verified on
+   sportwettenvergleich.net/kickform/premier-league/aston-villa-vs-nottingham-
+   forest/P4rq4/, which renders this same component natively): clamped state
+   wraps the button in a ._fade-overlay_13lqy_19 (absolute-positioned, so it
+   can overlay the clipped last line); expanded state has NO overlay at
+   all — the live site's own React removes it and appends "_show-less-link_
+   13lqy_35" as a plain inline sibling straight after the </span>, so it just
+   flows as part of the paragraph ("...natürlichste Ausgang. Weniger
+   anzeigen") with normal line spacing. Toggling only the _clamped_13lqy_12
+   class (the original approach here) kept the overlay in the DOM in both
+   states, which is what put the button hard against the text with no gap —
+   not a spacing bug to patch with padding, a structural mismatch to fix. */
+function swvToggleReadMore(btn){
+  var wrap = btn.closest("._read-more-content_13lqy_1");
+  var span = wrap.querySelector("span");
+  var expanding = wrap.classList.contains("_clamped_13lqy_12");
+  if (expanding){
+    wrap.classList.remove("_clamped_13lqy_12");
+    wrap.innerHTML = span.outerHTML + ' <button type="button" class="_show-less-link_13lqy_35" onclick="swvToggleReadMore(this)">Weniger anzeigen</button>';
+  } else {
+    wrap.classList.add("_clamped_13lqy_12");
+    wrap.innerHTML = span.outerHTML + '<div class="_fade-overlay_13lqy_19"><span class="_fade-gradient_13lqy_27"></span><button type="button" class="_read-more-link_13lqy_34" onclick="swvToggleReadMore(this)">Mehr lesen</button></div>';
+  }
+  var block = wrap.closest(".swv-odds-block");
+  var compareBtn = block.querySelector(".swv-compare-btn");
+  var reveal = block.querySelector(".swv-odds-reveal");
+  compareBtn.setAttribute("aria-expanded", expanding ? "true" : "false");
+  reveal.hidden = !expanding;
+  compareBtn.firstChild.textContent = expanding ? "Quoten ausblenden" : "Quoten vergleichen";
+}
+/* Best odds is computed, never hand-placed — shuffling row order on load (while the
+   is-best flag stays wherever the real comparison put it) makes that legible at a
+   glance, since the highlighted row won't always land in the same slot. Runs once
+   per page load, not on every interaction. Same behaviour as the TPP version. */
+function swvShuffleBookieRows(){
+  document.querySelectorAll(".swv-bookie-rows").forEach(function(list){
+    var rows = Array.prototype.slice.call(list.children);
+    for (var i = rows.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = rows[i]; rows[i] = rows[j]; rows[j] = tmp;
+    }
+    rows.forEach(function(row){ list.appendChild(row); });
+  });
+}
+swvShuffleBookieRows();
+</script>
+
+</body>
+</html>
